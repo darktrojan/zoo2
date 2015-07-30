@@ -1,0 +1,16 @@
+Django==1.8.3
+anyjson==0.3.3
+argparse==1.2.1
+billiard==3.3.0.20
+celery==3.1.18
+dj-database-url==0.3.0
+dj-static==0.0.6
+django-celery==3.1.16
+django-kombu==0.9.4
+django-toolbelt==0.0.1
+gunicorn==19.3.0
+kombu==3.0.26
+psycopg2==2.6.1
+pytz==2015.4
+static3==0.6.1
+wsgiref==0.1.2

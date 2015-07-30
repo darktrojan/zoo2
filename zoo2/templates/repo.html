@@ -1,0 +1,6 @@
+<h1>{{ repo.full_name }}</h1>
+<ul>{% for t in repo.translations.all %}
+	<li>
+		<a href="{% url 'locale' repo.full_name t.code %}">{{ t.name }} [{{ t.code }}]</a>
+	</li>
+{% endfor %}</ul>

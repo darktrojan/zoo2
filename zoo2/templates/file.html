@@ -1,0 +1,11 @@
+<h1>{{ repo.full_name }} {{ locale.name }} {{ file.path }}</h1>
+<form action="{% url 'save' repo.full_name locale.code file.path %}" method="post">
+{% csrf_token %}
+<ul>{% for s in strings %}
+	<li data-key="{{ s.base.key }}">
+		<i class="base_value">{{ s.base.value }}</i><br />
+		<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
+	</li>
+{% endfor %}</ul>
+<button type="submit">Save</button>
+</form>

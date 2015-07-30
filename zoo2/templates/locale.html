@@ -1,0 +1,6 @@
+<h1>{{ repo.full_name }} {{ locale.name }}</h1>
+<ul>{% for f in repo.file_set.all %}
+	<li>
+		<a href="{% url 'file' repo.full_name locale.code f.path %}">{{ f.path }}</a>
+	</li>
+{% endfor %}</ul>
