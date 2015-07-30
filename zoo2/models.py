@@ -61,9 +61,9 @@ class Translation(models.Model):
 		return 'zoo2_%s' % self.locale.code
 	branch_name = property(_get_branch_name)
 
-	def download_from_source(self):
+	def download_from_source(self, use_fork=False):
 		for f in self.repo.file_set.all():
-			f.download_from_source(self.locale)
+			f.download_from_source(self.locale, use_fork=use_fork)
 
 	def save_to_github(self):
 		files = dict()
@@ -107,13 +107,18 @@ class File(models.Model):
 	def get_full_path(self, locale):
 		return os.path.join(self.repo.locale_path, locale.code, self.path)
 
-	def download_from_source(self, locale):
-		f = raw.get_raw_file(self.repo.full_name, self.repo.head_commit, self.get_full_path(locale))
+	def download_from_source(self, locale, use_fork=False):
+		repo_name = self.repo.full_name if not use_fork else self.repo.fork_name
+		f = raw.get_raw_file(repo_name, self.repo.head_commit, self.get_full_path(locale))
 
 		dtd = getParser(self.path)
 		dtd.readContents(f)
 		for e in dtd:
-			s = String(file=self, locale=locale, key=e.key, value=e.val)
+			try:
+				s = self.string_set.filter(locale=locale, key=e.key)
+				s.value = e.val
+			except String.DoesNotExist:
+				s = String(file=self, locale=locale, key=e.key, value=e.val)
 			if locale.code == 'en-US':
 				s.pre = e.pre_ws + e.pre_comment
 				s.post = e.post

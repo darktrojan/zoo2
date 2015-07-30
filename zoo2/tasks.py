@@ -14,6 +14,11 @@ app.config_from_object('django.conf:settings')
 app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 @app.task
+def download_translation(translation_pk, use_fork=False):
+	t = Translation.objects.get(pk=translation_pk)
+	t.download_from_source(use_fork)
+
+@app.task
 def save_translation(translation_pk):
 	t = Translation.objects.get(pk=translation_pk)
 	print 'Saving to GitHub'
