@@ -115,7 +115,7 @@ class File(models.Model):
 		dtd.readContents(f)
 		for e in dtd:
 			try:
-				s = self.string_set.filter(locale=locale, key=e.key)
+				s = self.string_set.get(locale=locale, key=e.key)
 				s.value = e.val
 			except String.DoesNotExist:
 				s = String(file=self, locale=locale, key=e.key, value=e.val)
