@@ -47,7 +47,7 @@ def traverse_tree(repo, wanted, tree_sha):
 			if len(wanted) > 1 and f['type'] == 'tree':
 				return traverse_tree(repo, wanted[1:], f['sha'])
 			else:
-				return f
+				return f['sha']
 
 	return None
 

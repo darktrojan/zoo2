@@ -35,8 +35,8 @@ class Repo(models.Model):
 			self.head_commit = api.get_head_commit_sha(self.full_name, self.branch)
 			self.save(update_fields=['head_commit'])
 		tree_sha = api.get_commit_tree_sha(self.full_name, self.head_commit)
-		leaf = api.traverse_tree(self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha)
-		blobs = api.get_tree_blobs(self.full_name, leaf['sha'])
+		tree_sha = api.traverse_tree(self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha)
+		blobs = api.get_tree_blobs(self.full_name, tree_sha)
 
 		for b in blobs:
 			f = File(repo=self, path=b)
@@ -49,10 +49,10 @@ class Repo(models.Model):
 
 
 class Translation(models.Model):
-	locale = models.ForeignKey(Locale)
 	repo = models.ForeignKey(Repo)
+	locale = models.ForeignKey(Locale)
 	head_commit = models.CharField(max_length=40)
-	pull_request = models.IntegerField()
+	pull_request = models.IntegerField(default=0)
 
 	def __unicode__(self):
 		return '%s [%s]' % (self.repo.full_name, self.branch_name)
