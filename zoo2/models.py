@@ -62,8 +62,13 @@ class Translation(models.Model):
 	branch_name = property(_get_branch_name)
 
 	def download_from_source(self, use_fork=False):
+		if use_fork and self.head_commit is not None:
+			head_commit = self.head_commit
+		else:
+			head_commit = self.repo.head_commit
+
 		for f in self.repo.file_set.all():
-			f.download_from_source(self.locale, use_fork=use_fork)
+			f.download_from_source(self.locale, head_commit, use_fork=use_fork)
 
 	def save_to_github(self):
 		files = dict()
@@ -107,9 +112,9 @@ class File(models.Model):
 	def get_full_path(self, locale):
 		return os.path.join(self.repo.locale_path, locale.code, self.path)
 
-	def download_from_source(self, locale, use_fork=False):
+	def download_from_source(self, locale, head_commit, use_fork=False):
 		repo_name = self.repo.full_name if not use_fork else self.repo.fork_name
-		f = raw.get_raw_file(repo_name, self.repo.head_commit, self.get_full_path(locale))
+		f = raw.get_raw_file(repo_name, head_commit, self.get_full_path(locale))
 
 		dtd = getParser(self.path)
 		dtd.readContents(f)
