@@ -1,7 +1,8 @@
 import json, os.path
 
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
+from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -11,9 +12,45 @@ from zoo2 import tasks
 def index(request):
 	return render(request, 'index.html', { 'repos': Repo.objects.all() })
 
+@csrf_exempt
+@require_http_methods(['POST'])
+def hook(request):
+	# TODO hash requests with secret
+	body = json.loads(request.body)
+	repo = get_object_or_404(Repo, full_name=body['repository']['full_name'])
+
+	if request.META['HTTP_X_GITHUB_EVENT'] == 'ping':
+		return HttpResponse('Pong!', content_type='text/plain')
+
+	ref = body['ref']
+	if ref != os.path.join('refs/heads', repo.branch):
+		return HttpResponse('Not for me.', status=202, content_type='text/plain')
+
+	repo.update_fork(body['head_commit']['id'])
+
+	# TODO update database with changed strings
+
+	return HttpResponse('Okay, got it.', status=201, content_type='text/plain')
+
+# repo_patterns
+
 def repo(request, full_name):
 	repo = get_object_or_404(Repo, full_name=full_name)
-	return render(request, 'repo.html', { 'repo': repo })
+	return render(request, 'repo.html', {
+		'repo': repo,
+		'locales': Locale.objects.all()
+	})
+
+@require_http_methods(['POST'])
+def new(request, full_name):
+	repo = get_object_or_404(Repo, full_name=full_name)
+	code = request.POST.get('locale')
+	locale = Locale.objects.get(code=code)
+	translation = Translation(repo=repo, locale=locale)
+	translation.save()
+	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))
+
+# translation_pattens
 
 def translation(request, full_name, code):
 	repo = get_object_or_404(Repo, full_name=full_name)
@@ -101,23 +138,3 @@ def save(request, full_name, code, path):
 			translation.save(update_fields=['dirty'])
 
 	return HttpResponse('ok saved it')
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def hook(request):
-	# TODO hash requests with secret
-	body = json.loads(request.body)
-	repo = get_object_or_404(Repo, full_name=body['repository']['full_name'])
-
-	if request.META['HTTP_X_GITHUB_EVENT'] == 'ping':
-		return HttpResponse('Pong!', content_type='text/plain')
-
-	ref = body['ref']
-	if ref != os.path.join('refs/heads', repo.branch):
-		return HttpResponse('Not for me.', status=202, content_type='text/plain')
-
-	repo.update_fork(body['head_commit']['id'])
-
-	# TODO update database with changed strings
-
-	return HttpResponse('Okay, got it.', status=201, content_type='text/plain')
