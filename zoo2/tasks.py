@@ -30,7 +30,7 @@ def save_translation(translation_pk):
 	if t.pull_request == original:
 		print 'Already had a pull request'
 	else:
-		print 'New pull request: ' + t.pull_request
+		print 'New pull request: %d' % t.pull_request
 
 @app.task
 def create_repo(full_name, branch):

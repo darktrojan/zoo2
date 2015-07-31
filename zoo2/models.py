@@ -17,7 +17,7 @@ class Locale(models.Model):
 
 
 class Repo(models.Model):
-	full_name = models.CharField(max_length=255)
+	full_name = models.CharField(max_length=255, unique=True)
 	locale_path = models.CharField(max_length=255)
 	translations = models.ManyToManyField(Locale, through='Translation')
 	branch = models.CharField(max_length=255)
@@ -63,7 +63,7 @@ class Translation(models.Model):
 	branch_name = property(_get_branch_name)
 
 	def download_from_source(self, use_fork=False):
-		if use_fork and self.head_commit is not None:
+		if use_fork and self.head_commit != '':
 			head_commit = self.head_commit
 		else:
 			head_commit = self.repo.head_commit
@@ -78,7 +78,7 @@ class Translation(models.Model):
 			content = f.reconstruct(self.locale)
 			files[path] = content
 
-		if self.head_commit is None:
+		if self.head_commit == '':
 			parent_commit = self.repo.head_commit
 		else:
 			parent_commit = self.head_commit
@@ -124,6 +124,10 @@ class Translation(models.Model):
 			total += counts[3]
 
 		return translated, duplicate, missing, total
+
+	class Meta:
+		unique_together = ('repo', 'locale')
+
 
 class File(models.Model):
 	repo = models.ForeignKey('Repo')
@@ -194,6 +198,9 @@ class File(models.Model):
 				t = s
 			data += format(s, t)
 		return data
+
+	class Meta:
+		unique_together = ('repo', 'path')
 
 
 class String(models.Model):

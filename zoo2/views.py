@@ -1,5 +1,6 @@
 import json, os.path
 
+from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.core.urlresolvers import reverse
@@ -47,7 +48,11 @@ def new(request, full_name):
 	code = request.POST.get('locale')
 	locale = Locale.objects.get(code=code)
 	translation = Translation(repo=repo, locale=locale)
-	translation.save()
+	try:
+		translation.save()
+	except IntegrityError:
+		return HttpResponse('oops')
+
 	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))
 
 # translation_pattens
@@ -137,4 +142,4 @@ def save(request, full_name, code, path):
 			translation.dirty = True
 			translation.save(update_fields=['dirty'])
 
-	return HttpResponse('ok saved it')
+	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))

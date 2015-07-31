@@ -131,4 +131,4 @@ def create_pull_request(repo, head, base, title):
 		'base': base,
 		'title': title,
 	}
-	return _do_thing('POST', path, body)['id']
+	return _do_thing('POST', path, body)['number']
