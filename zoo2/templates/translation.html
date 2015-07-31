@@ -17,11 +17,7 @@
 </style>
 {% load display %}
 
-<h1>{{ repo.full_name }} {{ locale.name }}
-{% if translation.dirty %}
-	*
-{% endif %}
-</h1>
+<h1>{{ repo.full_name }} {{ locale.name }}</h1>
 <ul>{% for k, v in counts.iteritems %}
 	<li>
 		<a href="{% url 'file' repo.full_name locale.code k %}">{{ k }}</a>
