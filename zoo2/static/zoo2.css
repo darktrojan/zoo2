@@ -1,0 +1,59 @@
+:root,
+td {
+	font-family: sans-serif;
+	font-size: 14px;
+	line-height: 18px;
+}
+
+.translated {
+	display: inline-block;
+	height: 10px;
+	background-color: green;
+}
+.duplicate {
+	display: inline-block;
+	height: 10px;
+	background-color: orange;
+}
+.missing {
+	display: inline-block;
+	height: 10px;
+	background-color: red;
+}
+
+.row1 {
+	background-color: #f0f0f0;
+}
+.row2 {
+	background-color: #f8f8f8;
+}
+
+table#translation_strings {
+	border-collapse: collapse;
+}
+table#translation_strings tr.note td {
+	background-color: #eef;
+	font-size: 0.75em;
+}
+table#translation_strings td {
+	padding: 4px 8px;
+}
+table#translation_strings td.key {
+	max-width: 300px;
+	font-size: 0.75em;
+	line-height: 18px;
+	vertical-align: baseline;
+}
+table#translation_strings td.base {
+	width: 500px;
+	padding-bottom: 0;
+	vertical-align: baseline;
+}
+table#translation_strings td.value {
+	width: 500px;
+	padding-top: 0;
+}
+table#translation_strings td.value input {
+	width: 100%;
+	box-sizing: border-box;
+}

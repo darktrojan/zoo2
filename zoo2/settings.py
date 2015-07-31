@@ -1,7 +1,7 @@
 import os
 import dj_database_url
 
-# DEBUG = True
+DEBUG = 'ZOO_DEBUG' in os.environ
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.path.join(BASE_DIR, 'secret_key.txt')
 ALLOWED_HOSTS = ['*']
@@ -68,4 +68,5 @@ STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
 	os.path.join(BASE_DIR, 'venv/lib/python2.7/site-packages/django/contrib/admin/static/admin'),
+	os.path.join(BASE_DIR, 'zoo2/static'),
 )

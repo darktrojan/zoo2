@@ -1,26 +1,15 @@
-<style type="text/css">
-.translated {
-	display: inline-block;
-	height: 10px;
-	background-color: green;
-}
-.duplicate {
-	display: inline-block;
-	height: 10px;
-	background-color: orange;
-}
-.missing {
-	display: inline-block;
-	height: 10px;
-	background-color: red;
-}
-</style>
+{% extends 'page.html' %}
 {% load display %}
 
-<h1>{{ repo.full_name }} {{ locale.name }}</h1>
+{% block 'content' %}
+<h1>
+	<a href="{% url 'index' %}">Zoo2</a>
+	<a href="{% url 'repo' repo.full_name %}">{{ repo.full_name }}</a>
+	{{ locale.name }}
+</h1>
 <ul>{% for k, v in counts.iteritems %}
 	<li>
-		<a href="{% url 'file' repo.full_name locale.code k %}">{{ k }}</a>
+		<a href="{% url 'edit' repo.full_name locale.code k %}">{{ k }}</a>
 		{% if v.dirty %}
 			*
 		{% endif %}
@@ -34,3 +23,4 @@
 		<button type="submit">Push to GitHub</button>
 	</form>
 {% endif %}
+{% endblock %}

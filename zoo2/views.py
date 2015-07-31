@@ -1,4 +1,4 @@
-import json, os.path
+import json, os.path, re
 
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -86,7 +86,7 @@ def push(request, full_name, code):
 
 	return HttpResponse('ok pushing it', status=201)
 
-def file(request, full_name, code, path):
+def edit(request, full_name, code, path):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	locale = get_object_or_404(Locale, code=code)
 	file = get_object_or_404(File, repo=repo, path=path)
@@ -95,6 +95,9 @@ def file(request, full_name, code, path):
 	translation = list()
 	for s in strings:
 		dirty = False
+		s.pre = s.pre.strip()
+		s.pre = re.sub('^(#|<!--)\s*', '', s.pre)
+		s.pre = re.sub('\s*-->\s*$', '', s.pre)
 		try:
 			ts = file.string_set.get(locale=locale, key=s.key)
 			t = ts.value

@@ -1,5 +1,12 @@
+{% extends 'page.html' %}
+
+{% block 'content' %}
+<h1>
+	Zoo2
+</h1>
 <ul>{% for r in repos %}
 	<li>
 		<a href="{% url 'repo' r.full_name %}">{{ r.full_name }}</a>
 	</li>
 {% endfor %}</ul>
+{% endblock %}

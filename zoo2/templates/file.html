@@ -1,15 +1,31 @@
-<h1>{{ repo.full_name }} {{ locale.name }} {{ file.path }}</h1>
+{% extends 'page.html' %}
+
+{% block 'content' %}
+<h1>
+	<a href="{% url 'index' %}">Zoo2</a>
+	<a href="{% url 'repo' repo.full_name %}">{{ repo.full_name }}</a>
+	<a href="{% url 'translation' repo.full_name locale.code %}">{{ locale.name }}</a>
+	{{ file.path }}
+</h1>
 <form action="{% url 'save' repo.full_name locale.code file.path %}" method="post">
-{% csrf_token %}
-<ul>{% for s in strings %}
-	<li data-key="{{ s.base.key }}">
-		<i class="base_value">{{ s.base.value }}</i>
-		{% if s.dirty %}
-			*
+	{% csrf_token %}
+	<table id="translation_strings">{% for s in strings %}
+		{% if s.base.pre != '' %}
+		<tr class="note">
+			<td></td>
+			<td>{{ s.base.pre }}</td>
+		</tr>
 		{% endif %}
-		<br />
-		<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
-	</li>
-{% endfor %}</ul>
-<button type="submit">Save</button>
+		<tr class="{% cycle 'row1' 'row2' as rowclass %}">
+			<td class="key" rowspan="2">{{ s.base.key }} {% if s.dirty %}*{% endif %}</td>
+			<td class="base">{{ s.base.value }}</td>
+		</tr>
+		<tr class="{{ rowclass }}">
+			<td class="value">
+				<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
+			</td>
+		</tr>
+	{% endfor %}</table>
+	<button type="submit">Save</button>
 </form>
+{% endblock %}

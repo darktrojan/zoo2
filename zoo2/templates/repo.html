@@ -1,23 +1,11 @@
-<style type="text/css">
-.translated {
-	display: inline-block;
-	height: 10px;
-	background-color: green;
-}
-.duplicate {
-	display: inline-block;
-	height: 10px;
-	background-color: orange;
-}
-.missing {
-	display: inline-block;
-	height: 10px;
-	background-color: red;
-}
-</style>
+{% extends 'page.html' %}
 {% load display %}
 
-<h1>{{ repo.full_name }}</h1>
+{% block 'content' %}
+<h1>
+	<a href="{% url 'index' %}">Zoo2</a>
+	{{ repo.full_name }}
+</h1>
 <ul>{% for t in repo.translation_set.all %}
 	<li>
 		<a href="{% url 'translation' t.repo.full_name t.locale.code %}">{{ t.locale.name }} [{{ t.locale.code }}]</a>
@@ -36,3 +24,4 @@
 	{% endfor %}</select>
 	<button type="submit">Create</button>
 </form>
+{% endblock %}
