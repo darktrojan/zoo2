@@ -1,0 +1,40 @@
+<style type="text/css">
+.translated {
+	display: inline-block;
+	height: 10px;
+	background-color: green;
+}
+.duplicate {
+	display: inline-block;
+	height: 10px;
+	background-color: orange;
+}
+.missing {
+	display: inline-block;
+	height: 10px;
+	background-color: red;
+}
+</style>
+{% load display %}
+
+<h1>{{ repo.full_name }} {{ locale.name }}
+{% if translation.dirty %}
+	*
+{% endif %}
+</h1>
+<ul>{% for k, v in counts.iteritems %}
+	<li>
+		<a href="{% url 'file' repo.full_name locale.code k %}">{{ k }}</a>
+		{% if v.dirty %}
+			*
+		{% endif %}
+		{% complete v.counts %}
+	</li>
+{% endfor %}</ul>
+
+{% if translation.dirty %}
+	<form action="{% url 'push' repo.full_name locale.code %}" method="post">
+		{% csrf_token %}
+		<button type="submit">Push to GitHub</button>
+	</form>
+{% endif %}

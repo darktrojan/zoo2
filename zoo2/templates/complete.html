@@ -1,0 +1,5 @@
+{% spaceless %}
+<div class="translated" style="width: {% widthratio translated total 100 %}px" title="{{ translated }} string{{ translated|pluralize:" is,s are" }} translated"></div>
+<div class="duplicate" style="width: {% widthratio duplicate total 100 %}px" title="{{ duplicate }} string{{ duplicate|pluralize:" is,s are" }} the same as the English string"></div>
+<div class="missing" style="width: {% widthratio missing total 100 %}px" title="{{ missing }} string{{ missing|pluralize:" is,s are" }} missing"></div>
+{% endspaceless %}

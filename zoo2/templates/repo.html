@@ -1,6 +1,30 @@
+<style type="text/css">
+.translated {
+	display: inline-block;
+	height: 10px;
+	background-color: green;
+}
+.duplicate {
+	display: inline-block;
+	height: 10px;
+	background-color: orange;
+}
+.missing {
+	display: inline-block;
+	height: 10px;
+	background-color: red;
+}
+</style>
+{% load display %}
+
 <h1>{{ repo.full_name }}</h1>
-<ul>{% for t in repo.translations.all %}
+<ul>{% for t in repo.translation_set.all %}
 	<li>
-		<a href="{% url 'locale' repo.full_name t.code %}">{{ t.name }} [{{ t.code }}]</a>
+		<a href="{% url 'translation' t.repo.full_name t.locale.code %}">{{ t.locale.name }} [{{ t.locale.code }}]</a>
+		{% if t.dirty %}
+			*
+		{% endif %}
+
+		{% complete t.get_complete_counts %}
 	</li>
 {% endfor %}</ul>

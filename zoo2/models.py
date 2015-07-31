@@ -53,6 +53,7 @@ class Translation(models.Model):
 	locale = models.ForeignKey(Locale)
 	head_commit = models.CharField(max_length=40)
 	pull_request = models.IntegerField(default=0)
+	dirty = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return '%s [%s]' % (self.repo.full_name, self.branch_name)
@@ -88,7 +89,10 @@ class Translation(models.Model):
 		self.head_commit = api.create_commit(self.repo.fork_name, message, tree_sha, parent_commit)
 
 		api.update_head_commit_sha(self.repo.fork_name, self.branch_name, self.head_commit, force=True)
-		self.save(update_fields=['head_commit'])
+
+		self.dirty = False
+		self.save(update_fields=['head_commit', 'dirty'])
+		self.set_strings_clean()
 
 	def create_pull_request(self):
 		if self.pull_request > 0:
@@ -101,6 +105,25 @@ class Translation(models.Model):
 		self.pull_request = api.create_pull_request(self.repo.full_name, head, self.repo.branch, title)
 		self.save(update_fields=['pull_request'])
 
+	def set_strings_clean(self):
+		for f in self.repo.file_set.all():
+			for s in f.string_set.filter(locale=self.locale):
+				s.dirty = False
+				s.save(update_fields=['dirty'])
+
+	def get_complete_counts(self):
+		translated = 0
+		duplicate = 0
+		missing = 0
+		total = 0
+		for f in self.repo.file_set.all():
+			counts = f.get_complete_counts(self.locale)
+			translated += counts[0]
+			duplicate += counts[1]
+			missing += counts[2]
+			total += counts[3]
+
+		return translated, duplicate, missing, total
 
 class File(models.Model):
 	repo = models.ForeignKey('Repo')
@@ -109,8 +132,35 @@ class File(models.Model):
 	def __unicode__(self):
 		return '%s %s' % (self.repo.full_name, self.path)
 
+	def get_base_string_set(self):
+		return self.string_set.filter(locale='en-US').order_by('pk')
+	base_string_set = property(get_base_string_set)
+
+	def get_string_count(self):
+		return self.base_string_set.count()
+	string_count = property(get_string_count)
+
 	def get_full_path(self, locale):
 		return os.path.join(self.repo.locale_path, locale.code, self.path)
+
+	def get_complete_counts(self, locale):
+		translated = 0
+		duplicate = 0
+		missing = 0
+		for s in self.base_string_set.all():
+			try:
+				t = self.string_set.get(locale=locale, key=s.key)
+				if t.value == s.value:
+					duplicate += 1
+				else:
+					translated += 1
+			except String.DoesNotExist:
+				missing += 1
+
+		return translated, duplicate, missing, self.base_string_set.count()
+
+	def has_dirty_strings(self, locale):
+		return self.string_set.filter(locale=locale, dirty=True).count() > 0
 
 	def download_from_source(self, locale, head_commit, use_fork=False):
 		repo_name = self.repo.full_name if not use_fork else self.repo.fork_name
@@ -122,6 +172,7 @@ class File(models.Model):
 			try:
 				s = self.string_set.get(locale=locale, key=e.key)
 				s.value = e.val
+				s.dirty = False
 			except String.DoesNotExist:
 				s = String(file=self, locale=locale, key=e.key, value=e.val)
 			if locale.code == 'en-US':
@@ -136,7 +187,7 @@ class File(models.Model):
 			format = lambda s, t: '%s%s = %s%s\n' % (s.pre, s.key, t.value, s.post)
 
 		data = ''
-		for s in self.string_set.filter(locale='en-US').order_by('pk'):
+		for s in self.base_string_set:
 			try:
 				t = self.string_set.get(locale=locale, key=s.key)
 			except String.DoesNotExist:
@@ -152,6 +203,7 @@ class String(models.Model):
 	value = models.CharField(max_length=255)
 	pre = models.CharField(max_length=255, blank=True)
 	post = models.CharField(max_length=255, blank=True)
+	dirty = models.BooleanField(default=False)
 
 	def __unicode__(self):
 		return '%s [%s]' % (self.key, self.locale.code)

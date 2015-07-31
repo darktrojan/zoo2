@@ -3,7 +3,11 @@
 {% csrf_token %}
 <ul>{% for s in strings %}
 	<li data-key="{{ s.base.key }}">
-		<i class="base_value">{{ s.base.value }}</i><br />
+		<i class="base_value">{{ s.base.value }}</i>
+		{% if s.dirty %}
+			*
+		{% endif %}
+		<br />
 		<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
 	</li>
 {% endfor %}</ul>
