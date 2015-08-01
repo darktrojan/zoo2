@@ -3,7 +3,7 @@ import dj_database_url
 
 DEBUG = 'ZOO_DEBUG' in os.environ
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-SECRET_KEY = os.path.join(BASE_DIR, 'secret_key.txt')
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = (
