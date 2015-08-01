@@ -7,6 +7,7 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
+from github import auth
 from zoo2.models import *
 from zoo2 import tasks
 
@@ -43,9 +44,12 @@ def github_auth(request):
 
 	code = request.GET['code']
 	state = request.GET['state']
-	return HttpResponse('%s\n%s\n%s\n' % (code, state, state == request.session['state']), content_type='text/plain')
-	# if state != request.session['state']:
-	# 	return HttpResponse('hacking attempt', status=401)
+	if state != request.session['state']:
+		return HttpResponse('hacking attempt', status=401)
+
+	token = auth.get_access_token(code, state)
+
+	return HttpResponse('%s\n%s\n' % (token['access_token'], token['scope']), content_type='text/plain')
 
 # repo_patterns
 

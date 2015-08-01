@@ -20,7 +20,7 @@ def _do_thing(method, path, body=None, is_retry=False):
 		response_body = response.read()
 		if response.status / 100 == 4:
 			print response_body
-			return None 
+			return None
 		return json.loads(response_body)
 	except BadStatusLine as ex:
 		if is_retry:
