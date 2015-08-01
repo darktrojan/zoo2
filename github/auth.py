@@ -1,14 +1,15 @@
 import json, os
 from httplib import BadStatusLine, HTTPSConnection
+from urllib import urlencode
 
 _api_conn = HTTPSConnection('github.com')
 _headers = dict()
 _headers['Accept'] = 'application/json'
 
-def _do_thing(method, path, body=None, is_retry=False):
+def _do_thing(method, path, body, is_retry=False):
 	try:
 		print path
-		_api_conn.request(method, path, headers=_headers, body=body)
+		_api_conn.request(method, path, headers=_headers, body=urlencode(body))
 		response = _api_conn.getresponse()
 		print response.status
 		response_body = response.read()
@@ -25,8 +26,11 @@ def _do_thing(method, path, body=None, is_retry=False):
 		return _do_thing(method, path, body, is_retry=True)
 
 def get_access_token(code, state):
-	body = 'client_id=%s&client_secret=%s&code=%s' % (
-		'7d5bd4b7b4ee040275ba', os.environ['GITHUB_CLIENT_SECRET'], code
-	)
+	body = {
+		'client_id': '7d5bd4b7b4ee040275ba',
+		'client_secret': os.environ['GITHUB_CLIENT_SECRET'],
+		'code': code,
+		'state': state
+	}
 	print body
 	return _do_thing('POST', '/login/oauth/access_token', body)

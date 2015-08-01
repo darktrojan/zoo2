@@ -1,8 +1,8 @@
-import json, os.path
+import json, os, os.path
 from httplib import BadStatusLine, HTTPSConnection
 
 _headers = dict()
-_headers['Authorization'] = 'token 9d2b15ad1b68aa36ab87061f10fe057a87930798'
+_headers['Authorization'] = 'token %s' % os.environ['GITHUB_TOKEN']
 _headers['User-Agent'] = 'darktrojan'
 
 _api_conn = HTTPSConnection('api.github.com')
