@@ -20,5 +20,6 @@ urlpatterns = patterns('',
 	url(r'^$', 'zoo2.views.index', name='index'),
 	url(r'^(?P<full_name>\w+/\w+)', include(repo_patterns)),
 	url(r'^hook$', 'zoo2.views.hook'),
+	url(r'^github_auth$', 'zoo2.views.github_auth'),
 	url(r'^admin/', include(admin.site.urls)),
 )

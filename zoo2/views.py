@@ -1,4 +1,4 @@
-import json, os.path, re
+import json, os.path, re, uuid
 
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -32,6 +32,20 @@ def hook(request):
 	# TODO update database with changed strings
 
 	return HttpResponse('Okay, got it.', status=201, content_type='text/plain')
+
+def github_auth(request):
+	if 'code' not in request.GET or 'state' not in request.GET:
+		state = str(uuid.uuid4())
+		request.session['state'] = state
+		return HttpResponseRedirect(
+			'https://github.com/login/oauth/authorize?client_id=7d5bd4b7b4ee040275ba&state=%s' % state
+		)
+
+	code = request.GET['code']
+	state = request.GET['state']
+	return HttpResponse('%s\n%s\n%s\n' % (code, state, state == request.session['state']), content_type='text/plain')
+	# if state != request.session['state']:
+	# 	return HttpResponse('hacking attempt', status=401)
 
 # repo_patterns
 
