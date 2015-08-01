@@ -1,6 +1,7 @@
 import json, os.path, re, uuid
 
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -81,11 +82,12 @@ def repo(request, full_name):
 	})
 
 @require_http_methods(['POST'])
+@login_required
 def new(request, full_name):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	code = request.POST.get('locale')
 	locale = Locale.objects.get(code=code)
-	translation = Translation(repo=repo, locale=locale)
+	translation = Translation(repo=repo, locale=locale, owner=request.user)
 	try:
 		translation.save()
 	except IntegrityError:
@@ -99,6 +101,7 @@ def translation(request, full_name, code):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	locale = get_object_or_404(Locale, code=code)
 	translation = get_object_or_404(Translation, repo=repo, locale=locale)
+	is_owner = translation.is_owner(request.user)
 
 	counts = dict()
 	for f in repo.file_set.all():
@@ -111,7 +114,9 @@ def translation(request, full_name, code):
 		'repo': repo,
 		'locale': locale,
 		'translation': translation,
-		'counts': counts
+		'counts': counts,
+		'is_owner': is_owner,
+		'fileaction': 'edit' if is_owner else 'view'
 	})
 
 @require_http_methods(['POST'])
@@ -124,14 +129,17 @@ def push(request, full_name, code):
 
 	return HttpResponse('ok pushing it', status=201)
 
-def edit(request, full_name, code, path):
+def file(request, full_name, code, path):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	locale = get_object_or_404(Locale, code=code)
-	file = get_object_or_404(File, repo=repo, path=path)
-	strings = file.string_set.filter(locale=Locale.objects.get(code='en-US')).order_by('pk')
+	translation = get_object_or_404(Translation, repo=repo, locale=locale)
+	is_owner = translation.is_owner(request.user)
 
-	translation = list()
-	for s in strings:
+	file = get_object_or_404(File, repo=repo, path=path)
+	string_set = file.string_set.filter(locale=Locale.objects.get(code='en-US')).order_by('pk')
+
+	strings = list()
+	for s in string_set:
 		dirty = False
 		s.pre = s.pre.strip()
 		s.pre = re.sub('^(#|<!--)\s*', '', s.pre)
@@ -142,7 +150,7 @@ def edit(request, full_name, code, path):
 			dirty = ts.dirty
 		except String.DoesNotExist:
 			t = ''
-		translation.append({
+		strings.append({
 			'base': s,
 			'translated': t,
 			'dirty': dirty
@@ -152,8 +160,8 @@ def edit(request, full_name, code, path):
 		'repo': repo,
 		'locale': locale,
 		'file': file,
-		'strings': translation,
-		# 'reconstructed': file.reconstruct(locale)
+		'strings': strings,
+		'is_owner': is_owner
 	})
 
 @require_http_methods(['POST'])
@@ -161,6 +169,10 @@ def save(request, full_name, code, path):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	locale = get_object_or_404(Locale, code=code)
 	translation = get_object_or_404(Translation, repo=repo, locale=locale)
+
+	if not translation.is_owner(request.user):
+		return HttpResponse('sod off', status=401)
+
 	file = get_object_or_404(File, repo=repo, path=path)
 	strings = file.string_set.filter(locale=Locale.objects.get(code='en-US'))
 

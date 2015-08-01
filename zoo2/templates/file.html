@@ -7,8 +7,10 @@
 	<a href="{% url 'translation' repo.full_name locale.code %}">{{ locale.name }}</a>
 	{{ file.path }}
 </h1>
+{% if is_owner %}
 <form action="{% url 'save' repo.full_name locale.code file.path %}" method="post">
 	{% csrf_token %}
+{% endif %}
 	<table id="translation_strings">{% for s in strings %}
 		{% if s.base.pre != '' %}
 		<tr class="note">
@@ -22,10 +24,16 @@
 		</tr>
 		<tr class="{{ rowclass }}">
 			<td class="value">
+				{% if is_owner %}
 				<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
+				{% else %}
+				{{ s.translated }}
+				{% endif %}
 			</td>
 		</tr>
 	{% endfor %}</table>
+{% if is_owner %}
 	<button type="submit">Save</button>
 </form>
+{% endif %}
 {% endblock %}

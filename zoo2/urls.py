@@ -6,7 +6,8 @@ admin.autodiscover()
 translation_patterns = [
 	url(r'^$', 'zoo2.views.translation', name='translation'),
 	url(r'^/push$', 'zoo2.views.push', name='push'),
-	url(r'^/edit/(?P<path>.*)$', 'zoo2.views.edit', name='edit'),
+	url(r'^/edit/(?P<path>.*)$', 'zoo2.views.file', name='edit'),
+	url(r'^/view/(?P<path>.*)$', 'zoo2.views.file', name='view'),
 	url(r'^/save/(?P<path>.*)$', 'zoo2.views.save', name='save'),
 ]
 

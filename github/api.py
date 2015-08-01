@@ -1,4 +1,5 @@
 import json, os, os.path
+from datetime import datetime
 from httplib import BadStatusLine, HTTPSConnection
 
 _headers = dict()
@@ -99,13 +100,16 @@ def save_files(repo, base_tree_sha, files):
 
 	return _do_thing('POST', path, body)['sha']
 
-def create_commit(repo, message, tree_sha, parent_sha):
+def create_commit(repo, message, tree_sha, parent_sha, author=None):
 	path = os.path.join('/repos', repo, 'git/commits')
 	body = {
 		'message': message,
 		'tree': tree_sha,
 		'parents': [parent_sha]
 	}
+	if author is not None:
+		author['date'] = datetime.utcnow().isoformat() + 'Z'
+		body['author'] = author
 	return _do_thing('POST', path, body)['sha']
 
 def update_head_commit_sha(repo, branch, commit_sha, force=False):

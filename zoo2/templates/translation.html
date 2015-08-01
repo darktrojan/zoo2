@@ -7,9 +7,13 @@
 	<a href="{% url 'repo' repo.full_name %}">{{ repo.full_name }}</a>
 	{{ locale.name }}
 </h1>
+<p>Translator: {{ translation.owner.username }}</p>
+{% if translation.pull_request > 0 %}
+	<p><a href="https://github.com/{{ repo.full_name }}/pull/{{ translation.pull_request }}">View current pull request</a></p>
+{% endif %}
 <ul>{% for k, v in counts.iteritems %}
 	<li>
-		<a href="{% url 'edit' repo.full_name locale.code k %}">{{ k }}</a>
+		<a href="{% url fileaction repo.full_name locale.code k %}">{{ k }}</a>
 		{% if v.dirty %}
 			*
 		{% endif %}
@@ -17,7 +21,7 @@
 	</li>
 {% endfor %}</ul>
 
-{% if translation.dirty %}
+{% if translation.dirty and is_owner %}
 	<form action="{% url 'push' repo.full_name locale.code %}" method="post">
 		{% csrf_token %}
 		<button type="submit">Push to GitHub</button>

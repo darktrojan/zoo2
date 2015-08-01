@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import os.path
 from xml.sax.saxutils import escape
 
+from django.contrib.auth.models import User
 from django.db import models
 
 from github import api, raw
@@ -22,6 +23,7 @@ class Repo(models.Model):
 	translations = models.ManyToManyField(Locale, through='Translation')
 	branch = models.CharField(max_length=255)
 	head_commit = models.CharField(max_length=40)
+	owner = models.ForeignKey(User)
 
 	def __unicode__(self):
 		return self.full_name
@@ -51,9 +53,10 @@ class Repo(models.Model):
 class Translation(models.Model):
 	repo = models.ForeignKey(Repo)
 	locale = models.ForeignKey(Locale)
-	head_commit = models.CharField(max_length=40)
+	head_commit = models.CharField(max_length=40, blank=True)
 	pull_request = models.IntegerField(default=0)
 	dirty = models.BooleanField(default=False)
+	owner = models.ForeignKey(User)
 
 	def __unicode__(self):
 		return '%s [%s]' % (self.repo.full_name, self.branch_name)
@@ -61,6 +64,11 @@ class Translation(models.Model):
 	def _get_branch_name(self):
 		return 'zoo2_%s' % self.locale.code
 	branch_name = property(_get_branch_name)
+
+	def is_owner(self, user):
+		if user is None:
+			return False
+		return self.owner.pk == user.pk or self.repo.owner.pk == user.pk
 
 	def download_from_source(self, use_fork=False):
 		if use_fork and self.head_commit != '':
@@ -86,7 +94,11 @@ class Translation(models.Model):
 		tree_sha = api.get_commit_tree_sha(self.repo.fork_name, parent_commit)
 		tree_sha = api.save_files(self.repo.fork_name, tree_sha, files)
 		message = 'Update %s translation' % self.locale.name
-		self.head_commit = api.create_commit(self.repo.fork_name, message, tree_sha, parent_commit)
+		author = {
+			'name': self.owner.username,
+			'email': self.owner.email
+		}
+		self.head_commit = api.create_commit(self.repo.fork_name, message, tree_sha, parent_commit, author=author)
 
 		api.update_head_commit_sha(self.repo.fork_name, self.branch_name, self.head_commit, force=True)
 
