@@ -1,4 +1,5 @@
 import json, os.path, re, uuid
+from urllib import urlencode
 
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -60,7 +61,11 @@ def github_auth(request):
 		state = str(uuid.uuid4())
 		request.session['state'] = state
 		return HttpResponseRedirect(
-			'https://github.com/login/oauth/authorize?client_id=7d5bd4b7b4ee040275ba&state=%s' % state
+			'https://github.com/login/oauth/authorize?' + urlencode({
+				'client_id': '7d5bd4b7b4ee040275ba',
+				'state': state,
+				'scope': ','.join(['write:repo_hook'])
+			})
 		)
 
 	code = request.GET['code']
