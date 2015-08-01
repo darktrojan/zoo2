@@ -1,9 +1,10 @@
 import json, os.path, re, uuid
 
+from django.contrib.auth import authenticate, login, logout
+from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
-from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
@@ -13,6 +14,25 @@ from zoo2 import tasks
 
 def index(request):
 	return render(request, 'index.html', { 'repos': Repo.objects.all() })
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def log_in(request):
+	assertion = request.POST['assertion']
+	user = authenticate(assertion=assertion, audience=request.META['HTTP_HOST'])
+	if user is not None:
+		login(request, user)
+		response = HttpResponse('logged in')
+		response.set_cookie('email', user.email)
+		return response
+	else:
+		return HttpResponse('not logged in')
+
+def log_out(request):
+	logout(request)
+	response = HttpResponse('logged out')
+	response.delete_cookie('email')
+	return response
 
 @csrf_exempt
 @require_http_methods(['POST'])

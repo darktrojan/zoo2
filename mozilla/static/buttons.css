@@ -1,0 +1,113 @@
+/* Link body */
+.persona-button{
+	color: #fff;
+	display: inline-block;
+	font-size: 14px;
+	font-family: Helvetica, Arial, sans-serif;
+	font-weight: bold;
+	line-height: 1.1;
+	overflow: hidden;
+	position: relative;
+	text-decoration: none;
+	text-shadow: 0 1px rgba(0,0,0,0.5), 0 0 2px rgba(0,0,0,0.2);
+
+	background: #297dc3;
+	background: -webkit-linear-gradient(to top, hsl(227, 72%, 60%), hsl(227, 72%, 70%));
+	background: linear-gradient(to top, hsl(227, 72%, 60%), hsl(227, 72%, 70%));
+
+	border-radius: 3px;
+	box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+
+	vertical-align: top;
+}
+
+.persona-button:hover{
+	background: #21669f;
+	background: -webkit-linear-gradient(to top, hsl(227, 72%, 50%), hsl(227, 72%, 60%));
+	background: linear-gradient(to top, hsl(227, 72%, 50%), hsl(227, 72%, 60%));
+}
+
+.persona-button:active, .persona-button:focus{
+	top: 1px;
+	box-shadow: none;
+}
+
+.persona-button span{
+	display: inline-block;
+	padding: 5px 10px 5px 40px;
+}
+
+/* Icon */
+.persona-button span:after{
+	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA0AAAAPCAYAAAA/I0V3AAAA4klEQVR42o2RWaqEMBRE3YaCiDjPwQGcd9CrysLv4wTyoLFD90dxqbp1EgdPRB7Kskznea6Zn/aPoKoqUUrJOI5m4l2QBfSyLHKep1zXZSae3An1fS/7vst931bGkzuhaZrsLVbGkzuheZ7lOI6HyJ2QUkqv6yrbtv0LT+6E7G0UrfBfP3lZlpoXH4ZBmHgn5Pv+KwxDfqp0XQdgJp6c/RsUBIGOokiSJDE/s21bACbe5Ozp0TdAHMdSFIXUdS1N01C2wpObPT36HifwCJzI0iX29Oh7XP0E3CB9L01TzM+i/wePv4ZE5RtAngAAAABJRU5ErkJggg==) 10px center no-repeat;
+	content: '';
+	display: block;
+	width: 31px;
+
+	position: absolute;
+	bottom: 0;
+	left: -3px;
+	top: 0;
+	z-index: 10;
+}
+
+/* Icon background */
+.persona-button span:before{
+	content: '';
+	display: block;
+	height: 100%;
+	width: 20px;
+
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	top: 0;
+	z-index: 1;
+
+	background: #42a9dd;
+	background: -webkit-linear-gradient(to top, hsl(227, 72%, 70%), hsl(227, 72%, 80%));
+	background: linear-gradient(to top, hsl(227, 72%, 70%), hsl(227, 72%, 80%));
+
+	border-radius: 3px 0 0 3px;
+}
+
+/* Triangle */
+.persona-button:before{
+	background: #42a9dd;
+	content: '';
+	display: block;
+	height: 26px;
+	width: 26px;
+
+	position: absolute;
+	left: 2px;
+	top: 50%;
+	margin-top: -13px;
+	z-index: 0;
+
+	background: -webkit-linear-gradient(to top, hsl(227, 72%, 70%), hsl(227, 72%, 80%));
+	background: linear-gradient(to top, hsl(227, 72%, 70%), hsl(227, 72%, 80%));
+
+	box-shadow: 1px -1px 1px rgba(0,0,0,0.1);
+
+	-webkit-transform: rotate(45deg);
+	transform: rotate(45deg);
+}
+
+/* Inset shadow (required here because the icon background clips it when on the `a` element) */
+.persona-button:after{
+	content: '';
+	display: block;
+	height: 100%;
+	width: 100%;
+
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	right: 0;
+	z-index: 10;
+
+	border-radius: 3px;
+	box-shadow: inset 0 -1px 0 rgba(0,0,0,0.3);
+}

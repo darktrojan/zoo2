@@ -1,0 +1,8 @@
+<script src="https://login.persona.org/include.js"></script>
+<script type="text/javascript">
+navigator.id.watch({
+	onlogin: function(assertion) {
+		location.search = '?assertion=' + encodeURIComponent(assertion)
+	}
+});
+</script>

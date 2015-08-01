@@ -52,6 +52,10 @@ TEMPLATES = [
 	},
 ]
 
+AUTHENTICATION_BACKENDS = (
+	'mozilla.persona.PersonaBackend',
+)
+
 WSGI_APPLICATION = 'zoo2.wsgi.application'
 
 DATABASES = {
@@ -69,4 +73,5 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
 	# os.path.join(BASE_DIR, 'venv/lib/python2.7/site-packages/django/contrib/admin/static/admin'),
 	os.path.join(BASE_DIR, 'zoo2/static'),
+	os.path.join(BASE_DIR, 'mozilla/static'),
 )

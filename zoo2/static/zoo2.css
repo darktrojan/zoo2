@@ -5,6 +5,10 @@ td {
 	line-height: 18px;
 }
 
+span#username {
+	line-height: 25.4px;
+}
+
 .translated {
 	display: inline-block;
 	height: 10px;
