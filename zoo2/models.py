@@ -20,7 +20,6 @@ class Locale(models.Model):
 class Repo(models.Model):
 	full_name = models.CharField(max_length=255, unique=True)
 	locale_path = models.CharField(max_length=255)
-	translations = models.ManyToManyField(Locale, through='Translation')
 	translations_list = models.CharField(max_length=255, blank=True)
 	branch = models.CharField(max_length=255)
 	head_commit = models.CharField(max_length=40)
@@ -182,6 +181,9 @@ class File(models.Model):
 
 	def download_from_source(self, locale, head_commit):
 		f = raw.get_raw_file(self.repo.full_name, head_commit, self.get_full_path(locale))
+
+		if locale.code == 'en-US':
+			self.string_set.filter(locale=locale).delete()
 
 		dtd = getParser(self.path)
 		dtd.readContents(f)

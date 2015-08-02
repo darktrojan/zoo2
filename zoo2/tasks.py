@@ -35,9 +35,8 @@ def create_repo(full_name, branch, owner_pk):
 	# TODO fork the repo
 	api.update_head_commit_sha(repo.fork_name, 'zoo2', head_commit, force=True)
 
-	locale = Locale.objects.get(code='en-US')
 	for f in repo.file_set.all():
-		download_file.delay(f.pk, locale.code, head_commit)
+		download_file.delay(f.pk, 'en-US', head_commit)
 
 @app.task
 def update_repo_from_upstream(repo_pk, head_commit, commits_data):
@@ -47,6 +46,7 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 	# TODO stop assuming that locale_path hasn't changed
 	m = os.path.join(repo.locale_path, '([a-z]{2,3}(-[A-Z]{2})?)', '(.*)$')
 
+	# TODO if this is a forced update, there are no commits
 	changed_files = []
 	file_list_changed = False
 	for c in commits_data:
@@ -60,6 +60,8 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 			changed_files.append(f)
 
 	changed_files = frozenset(changed_files)
+	print 'These files have changed:'
+	print changed_files
 
 	if 'chrome.manifest' in changed_files:
 		manifest = raw.get_raw_file(repo.full_name, head_commit, 'chrome.manifest')
