@@ -14,12 +14,15 @@ def _do_thing(method, path, body=None, is_retry=False):
 		body_json = json.dumps(body)
 
 	try:
-		print path
+		print ' '.join([method, path])
 		_api_conn.request(method, path, headers=_headers, body=body_json)
 		response = _api_conn.getresponse()
-		print response.status
+		print ' '.join([method, path, str(response.status)])
 		response_body = response.read()
 		if response.status / 100 == 4:
+			print 'Request:'
+			print body_json
+			print 'Response:'
 			print response_body
 			return None
 		return json.loads(response_body)
