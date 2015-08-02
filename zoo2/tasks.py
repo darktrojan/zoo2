@@ -30,10 +30,12 @@ def create_repo(full_name, branch, owner_pk):
 	repo.head_commit = head_commit
 	repo.save()
 
-	repo.find_files()
+	for f in repo.find_files():
+		File(repo=repo, path=f).save()
 
-	# TODO fork the repo
-	api.update_head_commit_sha(repo.fork_name, 'zoo2', head_commit, force=True)
+	if not api.create_fork(repo.full_name):
+		# returns True if a fork was created, and that takes time so we can't update now
+		api.update_head_commit_sha(repo.fork_name, 'zoo2', head_commit, force=True)
 
 	for f in repo.file_set.all():
 		download_file.delay(f.pk, 'en-US', head_commit)
@@ -70,7 +72,17 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 		repo.translations_list_set = existing
 		repo.save(update_fields=['translations_list'])
 
-	# TODO if file_list_changed: update file list
+	if file_list_changed:
+		existing_files = [f.path for f in repo.file_set.all()]
+
+		for f in repo.find_files():
+			if f in existing_files:
+				existing_files.remove(f)
+			else:
+				File(repo=repo, path=f).save()
+
+		for f in existing_files:
+			repo.file_set.get(path=f).delete()
 
 	for f in changed_files:
 		match = re.match(m, f)

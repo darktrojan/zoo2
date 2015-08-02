@@ -44,13 +44,7 @@ class Repo(models.Model):
 			self.save(update_fields=['head_commit'])
 		tree_sha = api.get_commit_tree_sha(self.full_name, self.head_commit)
 		tree_sha = api.traverse_tree(self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha)
-		blobs = api.get_tree_blobs(self.full_name, tree_sha)
-
-		# TODO compare blobs with self.file_set and remove old files, add new ones
-
-		for b in blobs:
-			f = File(repo=self, path=b)
-			f.save()
+		return api.get_tree_blobs(self.full_name, tree_sha)
 
 	def update_fork(self, new_head_commit):
 		api.update_head_commit_sha(self.fork_name, 'zoo2', new_head_commit, force=True)

@@ -136,3 +136,14 @@ def create_pull_request(repo, head, base, title):
 		'title': title,
 	}
 	return _do_thing('POST', path, body)['number']
+
+
+def create_fork(repo):
+	existing_repos = _do_thing('GET', '/user/repos')
+	for r in existing_repos:
+		if r['full_name'] == repo:
+			return False
+
+	path = os.path.join('/repos', repo, 'forks')
+	_do_thing('POST', path)
+	return True
