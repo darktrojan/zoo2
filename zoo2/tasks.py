@@ -66,6 +66,7 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 
 		locale_path, existing = chrome_manifest.parse(manifest)
 		repo.translations_list_set = existing
+		repo.save(update_fields=['translations_list'])
 
 	# TODO if file_list_changed: update file list
 
