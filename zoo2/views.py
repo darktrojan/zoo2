@@ -95,6 +95,9 @@ def new(request, full_name):
 	translation = Translation(repo=repo, locale=locale, owner=request.user)
 	try:
 		translation.save()
+		if code in repo.translations_list_set:
+			# TODO please wait while this happens
+			tasks.download_translation.delay(translation.pk)
 	except IntegrityError:
 		return HttpResponse('oops')
 
@@ -123,16 +126,6 @@ def translation(request, full_name, code):
 		'is_owner': is_owner,
 		'fileaction': 'edit' if is_owner else 'view'
 	})
-
-@require_http_methods(['POST'])
-def push(request, full_name, code):
-	repo = get_object_or_404(Repo, full_name=full_name)
-	locale = get_object_or_404(Locale, code=code)
-	translation = get_object_or_404(Translation, repo=repo, locale=locale)
-
-	tasks.save_translation.delay(translation.pk)
-
-	return HttpResponse('ok pushing it', status=201)
 
 def file(request, full_name, code, path):
 	repo = get_object_or_404(Repo, full_name=full_name)
@@ -201,3 +194,13 @@ def save(request, full_name, code, path):
 			translation.save(update_fields=['dirty'])
 
 	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))
+
+@require_http_methods(['POST'])
+def push(request, full_name, code):
+	repo = get_object_or_404(Repo, full_name=full_name)
+	locale = get_object_or_404(Locale, code=code)
+	translation = get_object_or_404(Translation, repo=repo, locale=locale)
+
+	tasks.save_translation.delay(translation.pk)
+
+	return HttpResponse('ok pushing it', status=201)

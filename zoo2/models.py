@@ -21,6 +21,7 @@ class Repo(models.Model):
 	full_name = models.CharField(max_length=255, unique=True)
 	locale_path = models.CharField(max_length=255)
 	translations = models.ManyToManyField(Locale, through='Translation')
+	translations_list = models.CharField(max_length=255, blank=True)
 	branch = models.CharField(max_length=255)
 	head_commit = models.CharField(max_length=40)
 	owner = models.ForeignKey(User)
@@ -31,6 +32,12 @@ class Repo(models.Model):
 	def _get_fork_name(self):
 		return os.path.join('darktrojan-test', self.full_name.split('/', 2)[1])
 	fork_name = property(_get_fork_name)
+
+	def _get_translations_list_set(self):
+		return self.translations_list.split()
+	def _set_translations_list_set(self, values):
+		self.translations_list = ' '.join(values)
+	translations_list_set = property(_get_translations_list_set, _set_translations_list_set)
 
 	def find_files(self):
 		if self.head_commit == '':
@@ -70,16 +77,9 @@ class Translation(models.Model):
 			return False
 		return self.owner.pk == user.pk or self.repo.owner.pk == user.pk
 
-	def download_from_source(self, use_fork=False):
-		if use_fork and self.head_commit != '':
-			head_commit = self.head_commit
-		else:
-			head_commit = self.repo.head_commit
-
-		for f in self.repo.file_set.all():
-			f.download_from_source(self.locale, head_commit, use_fork=use_fork)
-
 	def save_to_github(self):
+		# TODO make sure this translation is in chrome.manifest,
+		# and in repo.translations_list
 		files = dict()
 		for f in self.repo.file_set.all():
 			path = os.path.join(self.repo.locale_path, self.locale.code, f.path)
@@ -178,9 +178,8 @@ class File(models.Model):
 	def has_dirty_strings(self, locale):
 		return self.string_set.filter(locale=locale, dirty=True).count() > 0
 
-	def download_from_source(self, locale, head_commit, use_fork=False):
-		repo_name = self.repo.full_name if not use_fork else self.repo.fork_name
-		f = raw.get_raw_file(repo_name, head_commit, self.get_full_path(locale))
+	def download_from_source(self, locale, head_commit):
+		f = raw.get_raw_file(self.repo.full_name, head_commit, self.get_full_path(locale))
 
 		dtd = getParser(self.path)
 		dtd.readContents(f)
