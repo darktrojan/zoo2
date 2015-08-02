@@ -1,6 +1,6 @@
 from __future__ import absolute_import
 
-import os
+import os, re
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zoo2.settings')
 
 from celery import Celery
@@ -38,6 +38,53 @@ def create_repo(full_name, branch, owner_pk):
 	locale = Locale.objects.get(code='en-US')
 	for f in repo.file_set.all():
 		download_file.delay(f.pk, locale.code, head_commit)
+
+@app.task
+def update_repo_from_upstream(repo_pk, head_commit, commits_data):
+	repo = Repo.objects.get(pk=repo_pk)
+	repo.update_fork(head_commit)
+
+	# TODO stop assuming that locale_path hasn't changed
+	m = os.path.join(repo.locale_path, '([a-z]{2,3}(-[A-Z]{2})?)', '(.*)$')
+
+	changed_files = []
+	file_list_changed = False
+	for c in commits_data:
+		for t in ['added', 'removed']:
+			for f in c[t]:
+				changed_files.append(f)
+				match = re.match(m, f)
+				if match is not None and match.group(1) == 'en-US':
+					file_list_changed = True
+		for f in c['modified']:
+			changed_files.append(f)
+
+	changed_files = frozenset(changed_files)
+
+	if 'chrome.manifest' in changed_files:
+		manifest = raw.get_raw_file(repo.full_name, head_commit, 'chrome.manifest')
+
+		locale_path, existing = chrome_manifest.parse(manifest)
+		repo.translations_list_set = existing
+
+	# TODO if file_list_changed: update file list
+
+	for f in changed_files:
+		match = re.match(m, f)
+		if match is not None:
+			code = match.group(1)
+			try:
+				locale = Locale.objects.get(code=code)
+				translation = repo.translation_set.get(locale=locale)
+				path = match.group(3)
+				file = File.objects.get(repo=repo, path=path)
+				download_file.delay(file.pk, code, head_commit)
+			except Locale.DoesNotExist:
+				pass
+			except Translation.DoesNotExist:
+				pass
+			except File.DoesNotExist:
+				pass
 
 @app.task
 def download_translation(translation_pk):

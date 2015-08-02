@@ -50,9 +50,7 @@ def hook(request):
 	if ref != os.path.join('refs/heads', repo.branch):
 		return HttpResponse('Not for me.', status=202, content_type='text/plain')
 
-	repo.update_fork(body['head_commit']['id'])
-
-	# TODO update database with changed strings
+	tasks.update_repo_from_upstream.delay(repo.pk, body['head_commit']['id'], body['commits'])
 
 	return HttpResponse('Okay, got it.', status=201, content_type='text/plain')
 

@@ -47,6 +47,8 @@ class Repo(models.Model):
 		tree_sha = api.traverse_tree(self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha)
 		blobs = api.get_tree_blobs(self.full_name, tree_sha)
 
+		# TODO compare blobs with self.file_set and remove old files, add new ones
+
 		for b in blobs:
 			f = File(repo=self, path=b)
 			f.save()
@@ -186,6 +188,7 @@ class File(models.Model):
 		for e in dtd:
 			try:
 				s = self.string_set.get(locale=locale, key=e.key)
+				# TODO decide what to do if s.dirty == True
 				s.value = e.val
 				s.dirty = False
 			except String.DoesNotExist:
