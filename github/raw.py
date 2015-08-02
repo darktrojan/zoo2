@@ -1,5 +1,5 @@
 import os.path
-from httplib import HTTPSConnection
+from httplib import BadStatusLine, HTTPSConnection
 
 _raw_conn = HTTPSConnection('raw.githubusercontent.com')
 
