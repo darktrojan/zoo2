@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.db import models
 
 from github import api, raw
+from mozilla.chrome_manifest import ChromeManifestParser
 from mozilla.parser import getParser
 
 class Locale(models.Model):
@@ -73,11 +74,9 @@ class Translation(models.Model):
 		return self.owner.pk == user.pk or self.repo.owner.pk == user.pk
 
 	def save_to_github(self):
-		# TODO make sure this translation is in chrome.manifest,
-		# and in repo.translations_list
 		files = dict()
 		for f in self.repo.file_set.all():
-			path = os.path.join(self.repo.locale_path, self.locale.code, f.path)
+			path = f.get_full_path(self.locale)
 			content = f.reconstruct(self.locale)
 			files[path] = content
 
@@ -85,6 +84,17 @@ class Translation(models.Model):
 			parent_commit = self.repo.head_commit
 		else:
 			parent_commit = self.head_commit
+
+		if self.locale.code not in self.repo.translations_list_set:
+			translations_list_set = self.repo.translations_list_set
+			translations_list_set.append(self.locale.code)
+			self.repo.translations_list_set = translations_list_set
+			self.repo.save(update_fields=['translations_list'])
+			# TODO stop assuming chrome.manifest is at the top level
+			manifest = raw.get_raw_file(self.repo.full_name, parent_commit, 'chrome.manifest')
+			parser = ChromeManifestParser(manifest)
+			parser.add_locale(self.locale.code)
+			files['chrome.manifest'] = parser.reconstruct()
 
 		tree_sha = api.get_commit_tree_sha(self.repo.fork_name, parent_commit)
 		tree_sha = api.save_files(self.repo.fork_name, tree_sha, files)

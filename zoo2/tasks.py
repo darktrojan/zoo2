@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 
 from github import api, raw
-from mozilla import chrome_manifest
+from mozilla.chrome_manifest import ChromeManifestParser
 from zoo2.models import *
 
 app = Celery('zoo2', broker='django://')
@@ -24,9 +24,9 @@ def create_repo(full_name, branch, owner_pk):
 	head_commit = api.get_head_commit_sha(full_name, branch)
 	manifest = raw.get_raw_file(full_name, head_commit, 'chrome.manifest')
 
-	locale_path, existing = chrome_manifest.parse(manifest)
-	repo.locale_path = locale_path
-	repo.translations_list_set = existing
+	parser = ChromeManifestParser(manifest)
+	repo.locale_path = parser.locale_path
+	repo.translations_list_set = parser.existing
 	repo.head_commit = head_commit
 	repo.save()
 
@@ -36,6 +36,8 @@ def create_repo(full_name, branch, owner_pk):
 	if not api.create_fork(repo.full_name):
 		# returns True if a fork was created, and that takes time so we can't update now
 		api.update_head_commit_sha(repo.fork_name, 'zoo2', head_commit, force=True)
+
+	# TODO add push hook
 
 	for f in repo.file_set.all():
 		download_file.delay(f.pk, 'en-US', head_commit)
@@ -68,8 +70,8 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 	if 'chrome.manifest' in changed_files:
 		manifest = raw.get_raw_file(repo.full_name, head_commit, 'chrome.manifest')
 
-		locale_path, existing = chrome_manifest.parse(manifest)
-		repo.translations_list_set = existing
+		parser = ChromeManifestParser(manifest)
+		repo.translations_list_set = parser.existing
 		repo.save(update_fields=['translations_list'])
 
 	if file_list_changed:
