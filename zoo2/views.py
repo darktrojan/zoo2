@@ -1,4 +1,4 @@
-import json, os.path, re, uuid
+import httplib, json, os.path, re, uuid
 from urllib import urlencode
 
 from django.contrib.auth import authenticate, login, logout
@@ -48,11 +48,11 @@ def hook(request):
 
 	ref = body['ref']
 	if ref != os.path.join('refs/heads', repo.branch):
-		return HttpResponse('Not for me.', status=202, content_type='text/plain')
+		return HttpResponse('Not for me.', status=httplib.ACCEPTED, content_type='text/plain')
 
 	tasks.update_repo_from_upstream.delay(repo.pk, body['head_commit']['id'], body['commits'])
 
-	return HttpResponse('Okay, got it.', status=201, content_type='text/plain')
+	return HttpResponse('Okay, got it.', status=httplib.CREATED, content_type='text/plain')
 
 def github_auth(request):
 	if 'code' not in request.GET or 'state' not in request.GET:
@@ -69,7 +69,7 @@ def github_auth(request):
 	code = request.GET['code']
 	state = request.GET['state']
 	if state != request.session['state']:
-		return HttpResponse('hacking attempt', status=401)
+		return HttpResponse('hacking attempt', status=httplib.UNAUTHORIZED)
 
 	token = auth.get_access_token(code, state)
 
@@ -167,7 +167,7 @@ def save(request, full_name, code, path):
 	translation = get_object_or_404(Translation, repo=repo, locale=locale)
 
 	if not translation.is_owner(request.user):
-		return HttpResponse('sod off', status=401)
+		return HttpResponse('sod off', status=httplib.UNAUTHORIZED)
 
 	file = get_object_or_404(File, repo=repo, path=path)
 	strings = file.string_set.filter(locale=Locale.objects.get(code='en-US'))
@@ -201,4 +201,4 @@ def push(request, full_name, code):
 
 	tasks.save_translation.delay(translation.pk)
 
-	return HttpResponse('ok pushing it', status=201)
+	return HttpResponse('ok pushing it', status=httplib.CREATED)
