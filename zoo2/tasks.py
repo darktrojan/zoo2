@@ -78,13 +78,10 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 			code = match.group(1)
 			try:
 				locale = Locale.objects.get(code=code)
-				translation = repo.translation_set.get(locale=locale)
 				path = match.group(3)
 				file = File.objects.get(repo=repo, path=path)
 				download_file.delay(file.pk, code, head_commit)
 			except Locale.DoesNotExist:
-				pass
-			except Translation.DoesNotExist:
 				pass
 			except File.DoesNotExist:
 				pass
