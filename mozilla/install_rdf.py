@@ -1,11 +1,17 @@
 from xml.dom.minidom import parse, parseString
 
+# TODO this isn't namespace-aware
+
 class InstallRDFParser(object):
 	def __init__(self, rdf, is_path=False):
 		if is_path:
 			self.dom = parse(rdf)
 		else:
 			self.dom = parseString(rdf)
+
+		self.first_whitespace = self.dom.documentElement.firstChild.data
+		self.line_ending = '\r\n' if self.first_whitespace.startswith('\r\n') else '\n'
+		self.indentation = self.first_whitespace.lstrip(self.line_ending)
 
 		self.translations = dict()
 
@@ -31,34 +37,63 @@ class InstallRDFParser(object):
 			description.firstChild.data = description_str
 			return
 
+		elements = [
+			('em:locale', locale_code),
+			('em:name', name_str),
+			('em:description', description_str)
+		]
+		template = None
 		insert_at_end = True
-		for l, t in self.translations.iteritems():
-			if l == 'en-US':
+		for c, t in self.translations.iteritems():
+			if c == 'en-US':
 				continue
 
 			template = t['element']
-			if l > locale_code:
+			if c > locale_code:
 				insert_at_end = False
 				break
 
-		localized = template.cloneNode(True)
-		locale = localized.getElementsByTagName('em:locale')[0]
-		locale.firstChild.data = locale_code
-		name = localized.getElementsByTagName('em:name')[0]
-		name.firstChild.data = name_str
-		description = localized.getElementsByTagName('em:description')[0]
-		description.firstChild.data = description_str
+		if template is None:
+			localized = self.dom.createElement('em:localized')
+			localized.appendChild(self._create_whitespace(1, 3))
+			rdf_description = self.dom.createElement('Description')
+			localized.appendChild(rdf_description)
 
-		before = template.previousSibling
-		after = template.nextSibling if insert_at_end else before
-		parent = template.parentNode
+			for k, v in elements:
+				element = self.dom.createElement(k)
+				element.appendChild(self.dom.createTextNode(v))
+				rdf_description.appendChild(self._create_whitespace(1, 4))
+				rdf_description.appendChild(element)
+
+			rdf_description.appendChild(self._create_whitespace(1, 3))
+			localized.appendChild(self._create_whitespace(1, 2))
+
+			parent = self.dom.getElementsByTagName('Description')[0]
+			before = self._create_whitespace(2, 2)
+			after = parent.lastChild
+		else:
+			localized = template.cloneNode(True)
+			for k, v in elements:
+				element = localized.getElementsByTagName(k)[0]
+				if element.firstChild is not None:
+					element.firstChild.data = v
+				else:
+					element.appendChild(self.dom.createTextNode(v))
+
+			parent = template.parentNode
+			before = template.previousSibling
+			after = template.nextSibling if insert_at_end else before
+
 		parent.insertBefore(before.cloneNode(False), after)
 		parent.insertBefore(localized, after)
 
 		self.translations[locale_code] = { 'name': name_str, 'description': description_str, 'element': localized }
 
+	def _create_whitespace(self, lines, indents):
+		return self.dom.createTextNode(self.line_ending * lines + self.indentation * indents)
+
 	def reconstruct(self):
-		return self.dom.toxml('utf-8').replace('?><', '?>\n<')
+		return self.dom.toxml('utf-8').replace('?><', '?>' + self.line_ending + '<') + self.line_ending
 
 if __name__ == '__main__':
 	i = InstallRDFParser(
@@ -66,9 +101,7 @@ if __name__ == '__main__':
 	)
 	# i.add_locale('ab-CD', 'name in test', 'description in test')
 	i.add_locale('fr', 'name in french', 'description in french')
-	print [l for l in i.translations.iterkeys()]
 	# i.add_locale('uk', 'name in ukrainian', 'description in ukrainian')
 	# i.add_locale('mi', 'name in maori', 'description in maori')
 	i.add_locale('fr', 'name in french, but changed', 'description in french, but changed')
 	print i.reconstruct()
-	print [l for l in i.translations.iterkeys()]
