@@ -9,6 +9,7 @@ from django.contrib.auth.models import User
 
 from github import api, raw
 from mozilla.chrome_manifest import ChromeManifestParser
+from mozilla.install_rdf import InstallRDFParser
 from zoo2.models import *
 
 app = Celery('zoo2', broker='django://')
@@ -40,6 +41,10 @@ def create_repo(full_name, branch, owner_pk):
 	# TODO add push hook
 
 	for f in repo.file_set.all():
+		if f.path == 'install.rdf':
+			download_install_rdf.delay(repo.pk, head_commit)
+			continue
+
 		download_file.delay(f.pk, 'en-US', head_commit)
 
 @app.task
@@ -87,13 +92,17 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 			repo.file_set.get(path=f).delete()
 
 	for f in changed_files:
+		if f == 'install.rdf':
+			download_install_rdf.delay(repo.pk, head_commit)
+			continue
+
 		match = re.match(m, f)
 		if match is not None:
 			code = match.group(1)
 			try:
 				locale = Locale.objects.get(code=code)
 				path = match.group(3)
-				file = File.objects.get(repo=repo, path=path)
+				file = repo.file_set.get(repo=repo, path=path)
 				download_file.delay(file.pk, code, head_commit)
 			except Locale.DoesNotExist:
 				pass
@@ -105,6 +114,30 @@ def download_translation(translation_pk):
 	t = Translation.objects.get(pk=translation_pk)
 	for f in t.repo.file_set.all():
 		download_file.delay(f.pk, t.locale.code, t.repo.head_commit)
+
+@app.task
+def download_install_rdf(repo_pk, head_commit):
+	repo = Repo.objects.get(pk=repo_pk)
+	try:
+		file = repo.file_set.get(path='install.rdf')
+	except File.DoesNotExist:
+		file = File(repo=repo, path='install.rdf')
+		file.save()
+
+	f = raw.get_raw_file(repo.full_name, head_commit, 'install.rdf')
+	parser = InstallRDFParser(f)
+	for l, t in parser.translations.iteritems():
+		try:
+			locale = Locale.objects.get(code=l)
+			for k in ['name', 'description']:
+				try:
+					string = file.string_set.get(locale=locale, key=k)
+				except String.DoesNotExist:
+					string = String(file=file, locale=locale, key=k)
+				string.value = t[k]
+				string.save()
+		except Locale.DoesNotExist:
+			pass
 
 @app.task
 def download_file(file_pk, locale_code, head_commit):

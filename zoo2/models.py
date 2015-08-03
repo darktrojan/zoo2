@@ -8,6 +8,7 @@ from django.db import models
 
 from github import api, raw
 from mozilla.chrome_manifest import ChromeManifestParser
+from mozilla.install_rdf import InstallRDFParser
 from mozilla.parser import getParser
 
 class Locale(models.Model):
@@ -45,7 +46,9 @@ class Repo(models.Model):
 			self.save(update_fields=['head_commit'])
 		tree_sha = api.get_commit_tree_sha(self.full_name, self.head_commit)
 		tree_sha = api.traverse_tree(self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha)
-		return api.get_tree_blobs(self.full_name, tree_sha)
+		files = api.get_tree_blobs(self.full_name, tree_sha)
+		files.append('install.rdf')
+		return files
 
 	def update_fork(self, new_head_commit):
 		api.update_head_commit_sha(self.fork_name, 'zoo2', new_head_commit, force=True)
@@ -74,16 +77,26 @@ class Translation(models.Model):
 		return self.owner.pk == user.pk or self.repo.owner.pk == user.pk
 
 	def save_to_github(self):
-		files = dict()
-		for f in self.repo.file_set.all():
-			path = f.get_full_path(self.locale)
-			content = f.reconstruct(self.locale)
-			files[path] = content
-
 		if self.head_commit == '':
 			parent_commit = self.repo.head_commit
 		else:
 			parent_commit = self.head_commit
+
+		files = dict()
+		for f in self.repo.file_set.all():
+			# TODO stop assuming install.rdf is at the top level
+			if f.path == 'install.rdf':
+				name = f.string_set.get(locale=self.locale, key='name').value
+				description = f.string_set.get(locale=self.locale, key='description').value
+				rdf = raw.get_raw_file(self.repo.full_name, parent_commit, 'install.rdf')
+				parser = InstallRDFParser(rdf)
+				parser.add_locale(self.locale.code, name, description)
+				files['install.rdf'] = parser.reconstruct()
+				continue
+
+			path = f.get_full_path(self.locale)
+			content = f.reconstruct(self.locale)
+			files[path] = content
 
 		if self.locale.code not in self.repo.translations_list_set:
 			translations_list_set = self.repo.translations_list_set
