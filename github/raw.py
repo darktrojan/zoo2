@@ -16,4 +16,4 @@ def get_raw_file(repo, commit_sha, path, is_retry=False):
 
 		print 'closing connection and trying again'
 		_raw_conn.close()
-		return _do_thing(method, path, body, is_retry=True)
+		return get_raw_file(repo, commit_sha, path, is_retry=True)
