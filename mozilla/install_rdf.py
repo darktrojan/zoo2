@@ -1,7 +1,7 @@
 from xml.dom.minidom import parse, parseString
 
-# TODO this isn't namespace-aware
 
+# TODO this isn't namespace-aware
 class InstallRDFParser(object):
 	def __init__(self, rdf, is_path=False):
 		if is_path:
@@ -19,14 +19,14 @@ class InstallRDFParser(object):
 		name = self.dom.getElementsByTagName('em:name')[0].firstChild.data.strip()
 		description = self.dom.getElementsByTagName('em:description')[0].firstChild.data.strip()
 
-		self.translations[locale] = { 'name': name, 'description': description }
+		self.translations[locale] = {'name': name, 'description': description}
 
 		for l in self.dom.getElementsByTagName('em:localized'):
 			locale = l.getElementsByTagName('em:locale')[0].firstChild.data.strip()
 			name = l.getElementsByTagName('em:name')[0].firstChild.data.strip()
 			description = l.getElementsByTagName('em:description')[0].firstChild.data.strip()
 
-			self.translations[locale] = { 'name': name, 'description': description, 'element': l }
+			self.translations[locale] = {'name': name, 'description': description, 'element': l}
 
 	def add_locale(self, locale_code, name_str, description_str):
 		if locale_code in self.translations:
@@ -87,7 +87,9 @@ class InstallRDFParser(object):
 		parent.insertBefore(before.cloneNode(False), after)
 		parent.insertBefore(localized, after)
 
-		self.translations[locale_code] = { 'name': name_str, 'description': description_str, 'element': localized }
+		self.translations[locale_code] = {
+			'name': name_str, 'description': description_str, 'element': localized
+		}
 
 	def _create_whitespace(self, lines, indents):
 		return self.dom.createTextNode(self.line_ending * lines + self.indentation * indents)
@@ -97,7 +99,8 @@ class InstallRDFParser(object):
 
 if __name__ == '__main__':
 	i = InstallRDFParser(
-		'/home/geoff/firefoxprofiles/sjua7g0g.test/extensions/menufilter@darktrojan.net/install.rdf', is_path=True
+		'/home/geoff/firefoxprofiles/sjua7g0g.test/extensions/menufilter@darktrojan.net/install.rdf',
+		is_path=True
 	)
 	# i.add_locale('ab-CD', 'name in test', 'description in test')
 	i.add_locale('fr', 'name in french', 'description in french')

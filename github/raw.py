@@ -3,6 +3,7 @@ from httplib import BadStatusLine, HTTPSConnection
 
 _raw_conn = HTTPSConnection('raw.githubusercontent.com')
 
+
 def get_raw_file(repo, commit_sha, path, is_retry=False):
 	path = os.path.join('/', repo, commit_sha, path)
 	print path

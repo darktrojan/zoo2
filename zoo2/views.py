@@ -1,4 +1,8 @@
-import httplib, json, os.path, re, uuid
+import httplib
+import json
+import os.path
+import re
+import uuid
 from urllib import urlencode
 
 from django.contrib.auth import authenticate, login, logout
@@ -14,8 +18,10 @@ from github import auth
 from zoo2.models import *
 from zoo2 import tasks
 
+
 def index(request):
-	return render(request, 'index.html', { 'repos': Repo.objects.all() })
+	return render(request, 'index.html', {'repos': Repo.objects.all()})
+
 
 @csrf_exempt
 @require_http_methods(['POST'])
@@ -30,11 +36,13 @@ def log_in(request):
 	else:
 		return HttpResponse('not logged in')
 
+
 def log_out(request):
 	logout(request)
 	response = HttpResponse('logged out')
 	response.delete_cookie('email')
 	return response
+
 
 @csrf_exempt
 @require_http_methods(['POST'])
@@ -53,6 +61,7 @@ def hook(request):
 	tasks.update_repo_from_upstream.delay(repo.pk, body['head_commit']['id'], body['commits'])
 
 	return HttpResponse('Okay, got it.', status=httplib.CREATED, content_type='text/plain')
+
 
 def github_auth(request):
 	if 'code' not in request.GET or 'state' not in request.GET:
@@ -73,16 +82,20 @@ def github_auth(request):
 
 	token = auth.get_access_token(code, state)
 
-	return HttpResponse('%s\n%s\n' % (token['access_token'], token['scope']), content_type='text/plain')
+	return HttpResponse(
+		'%s\n%s\n' % (token['access_token'], token['scope']),
+		content_type='text/plain'
+	)
+
 
 # repo_patterns
-
 def repo(request, full_name):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	return render(request, 'repo.html', {
 		'repo': repo,
 		'locales': Locale.objects.all()
 	})
+
 
 @require_http_methods(['POST'])
 @login_required
@@ -101,8 +114,8 @@ def new(request, full_name):
 
 	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))
 
-# translation_pattens
 
+# translation_pattens
 def translation(request, full_name, code):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	locale = get_object_or_404(Locale, code=code)
@@ -124,6 +137,7 @@ def translation(request, full_name, code):
 		'is_owner': is_owner,
 		'fileaction': 'edit' if is_owner else 'view'
 	})
+
 
 def file(request, full_name, code, path):
 	repo = get_object_or_404(Repo, full_name=full_name)
@@ -160,6 +174,7 @@ def file(request, full_name, code, path):
 		'is_owner': is_owner
 	})
 
+
 @require_http_methods(['POST'])
 def save(request, full_name, code, path):
 	repo = get_object_or_404(Repo, full_name=full_name)
@@ -192,6 +207,7 @@ def save(request, full_name, code, path):
 			translation.save(update_fields=['dirty'])
 
 	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))
+
 
 @require_http_methods(['POST'])
 def push(request, full_name, code):

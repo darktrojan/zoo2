@@ -17,7 +17,8 @@ repo_patterns = [
 	url(r'^/(?P<code>[a-z]{2,3}(-[A-Z]{2})?)', include(translation_patterns)),
 ]
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+	'',
 	url(r'^$', 'zoo2.views.index', name='index'),
 	url(r'^log_in$', 'zoo2.views.log_in', name='log_in'),
 	url(r'^log_out$', 'zoo2.views.log_out', name='log_out'),

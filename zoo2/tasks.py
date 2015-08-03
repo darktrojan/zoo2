@@ -1,10 +1,10 @@
 from __future__ import absolute_import
 
-import os, re
+import os
+import re
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zoo2.settings')
 
 from celery import Celery
-from django.conf import settings
 from django.contrib.auth.models import User
 
 from github import api, raw
@@ -15,6 +15,7 @@ from zoo2.models import *
 app = Celery('zoo2', broker='django://')
 app.config_from_object('django.conf:settings')
 # app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
+
 
 @app.task
 def create_repo(full_name, branch, owner_pk):
@@ -46,6 +47,7 @@ def create_repo(full_name, branch, owner_pk):
 			continue
 
 		download_file.delay(f.pk, 'en-US', head_commit)
+
 
 @app.task
 def update_repo_from_upstream(repo_pk, head_commit, commits_data):
@@ -100,20 +102,19 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 		if match is not None:
 			code = match.group(1)
 			try:
-				locale = Locale.objects.get(code=code)
 				path = match.group(3)
 				file = repo.file_set.get(repo=repo, path=path)
 				download_file.delay(file.pk, code, head_commit)
-			except Locale.DoesNotExist:
-				pass
 			except File.DoesNotExist:
 				pass
+
 
 @app.task
 def download_translation(translation_pk):
 	t = Translation.objects.get(pk=translation_pk)
 	for f in t.repo.file_set.all():
 		download_file.delay(f.pk, t.locale.code, t.repo.head_commit)
+
 
 @app.task
 def download_install_rdf(repo_pk, head_commit):
@@ -139,11 +140,13 @@ def download_install_rdf(repo_pk, head_commit):
 		except Locale.DoesNotExist:
 			pass
 
+
 @app.task
 def download_file(file_pk, locale_code, head_commit):
 	f = File.objects.get(pk=file_pk)
 	l = Locale.objects.get(code=locale_code)
 	f.download_from_source(l, head_commit)
+
 
 @app.task
 def save_translation(translation_pk):

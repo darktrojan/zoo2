@@ -1,5 +1,6 @@
 import os.path
 
+
 class ChromeManifestParser(object):
 	def __init__(self, manifest):
 		self.lines = manifest.splitlines(True)

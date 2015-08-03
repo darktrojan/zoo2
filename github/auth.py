@@ -1,10 +1,12 @@
-import json, os
+import json
+import os
 from httplib import BadStatusLine, HTTPSConnection
 from urllib import urlencode
 
 _api_conn = HTTPSConnection('github.com')
 _headers = dict()
 _headers['Accept'] = 'application/json'
+
 
 def _do_thing(method, path, body, is_retry=False):
 	try:
@@ -24,6 +26,7 @@ def _do_thing(method, path, body, is_retry=False):
 		print 'closing connection and trying again'
 		_api_conn.close()
 		return _do_thing(method, path, body, is_retry=True)
+
 
 def get_access_token(code, state):
 	body = {

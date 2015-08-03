@@ -1,4 +1,6 @@
-import json, os, os.path
+import json
+import os
+import os.path
 from datetime import datetime
 from httplib import BadStatusLine, HTTPSConnection
 
@@ -7,6 +9,7 @@ _headers['Authorization'] = 'token %s' % os.environ['GITHUB_TOKEN']
 _headers['User-Agent'] = 'darktrojan'
 
 _api_conn = HTTPSConnection('api.github.com')
+
 
 def _do_thing(method, path, body=None, is_retry=False):
 	body_json = None
@@ -34,13 +37,16 @@ def _do_thing(method, path, body=None, is_retry=False):
 		_api_conn.close()
 		return _do_thing(method, path, body, is_retry=True)
 
+
 def get_head_commit_sha(repo, branch):
 	path = os.path.join('/repos', repo, 'git/refs/heads', branch)
 	return _do_thing('GET', path)['object']['sha']
 
+
 def get_commit_tree_sha(repo, commit_sha):
 	path = os.path.join('/repos', repo, 'git/commits', commit_sha)
 	return _do_thing('GET', path)['tree']['sha']
+
 
 def traverse_tree(repo, wanted, tree_sha):
 	path = os.path.join('/repos', repo, 'git/trees', tree_sha)
@@ -55,6 +61,7 @@ def traverse_tree(repo, wanted, tree_sha):
 
 	return None
 
+
 def get_tree_blobs(repo, tree_sha, prefix=''):
 	path = os.path.join('/repos', repo, 'git/trees', tree_sha)
 	response = _do_thing('GET', path)
@@ -68,6 +75,7 @@ def get_tree_blobs(repo, tree_sha, prefix=''):
 
 	return blobs
 
+
 def get_tree_dirs(repo, tree_sha):
 	path = os.path.join('/repos', repo, 'git/trees', tree_sha)
 	response = _do_thing('GET', path)
@@ -79,13 +87,16 @@ def get_tree_dirs(repo, tree_sha):
 
 	return blobs
 
+
 def get_pull_request(repo, pull_id):
 	path = os.path.join('/repos', repo, 'pulls', str(pull_id))
 	return _do_thing('GET', path)
 
+
 def branch_exists(repo, branch):
 	path = os.path.join('/repos', repo, 'branches', branch)
 	return _do_thing('GET', path) is not None
+
 
 def save_files(repo, base_tree_sha, files):
 	path = os.path.join('/repos', repo, 'git/trees')
@@ -103,6 +114,7 @@ def save_files(repo, base_tree_sha, files):
 
 	return _do_thing('POST', path, body)['sha']
 
+
 def create_commit(repo, message, tree_sha, parent_sha, author=None):
 	path = os.path.join('/repos', repo, 'git/commits')
 	body = {
@@ -114,6 +126,7 @@ def create_commit(repo, message, tree_sha, parent_sha, author=None):
 		author['date'] = datetime.utcnow().isoformat() + 'Z'
 		body['author'] = author
 	return _do_thing('POST', path, body)['sha']
+
 
 def update_head_commit_sha(repo, branch, commit_sha, force=False):
 	if branch_exists(repo, branch):
@@ -130,6 +143,7 @@ def update_head_commit_sha(repo, branch, commit_sha, force=False):
 			'sha': commit_sha
 		}
 		print _do_thing('POST', path, body)
+
 
 def create_pull_request(repo, head, base, title):
 	path = os.path.join('/repos', repo, 'pulls')

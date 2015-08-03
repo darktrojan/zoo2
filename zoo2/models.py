@@ -11,6 +11,7 @@ from mozilla.chrome_manifest import ChromeManifestParser
 from mozilla.install_rdf import InstallRDFParser
 from mozilla.parser import getParser
 
+
 class Locale(models.Model):
 	code = models.CharField(max_length=5, primary_key=True)
 	name = models.CharField(max_length=32)
@@ -36,6 +37,7 @@ class Repo(models.Model):
 
 	def _get_translations_list_set(self):
 		return self.translations_list.split()
+
 	def _set_translations_list_set(self, values):
 		self.translations_list = ' '.join(values)
 	translations_list_set = property(_get_translations_list_set, _set_translations_list_set)
@@ -45,7 +47,9 @@ class Repo(models.Model):
 			self.head_commit = api.get_head_commit_sha(self.full_name, self.branch)
 			self.save(update_fields=['head_commit'])
 		tree_sha = api.get_commit_tree_sha(self.full_name, self.head_commit)
-		tree_sha = api.traverse_tree(self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha)
+		tree_sha = api.traverse_tree(
+			self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha
+		)
 		files = api.get_tree_blobs(self.full_name, tree_sha)
 		files.append('install.rdf')
 		return files
@@ -116,7 +120,9 @@ class Translation(models.Model):
 			'name': self.owner.username,
 			'email': self.owner.email
 		}
-		self.head_commit = api.create_commit(self.repo.fork_name, message, tree_sha, parent_commit, author=author)
+		self.head_commit = api.create_commit(
+			self.repo.fork_name, message, tree_sha, parent_commit, author=author
+		)
 
 		api.update_head_commit_sha(self.repo.fork_name, self.branch_name, self.head_commit, force=True)
 
@@ -219,7 +225,11 @@ class File(models.Model):
 
 	def reconstruct(self, locale):
 		if self.path.endswith('.dtd'):
-			format = lambda s, t: '%s<!ENTITY %s "%s">%s' % (s.pre, s.key, escape(t.value, entities={'"': '&quot;'}), s.post)
+			format = (
+				lambda s, t: '%s<!ENTITY %s "%s">%s' % (
+					s.pre, s.key, escape(t.value, entities={'"': '&quot;'}), s.post
+				)
+			)
 		else:
 			format = lambda s, t: '%s%s = %s%s\n' % (s.pre, s.key, t.value, s.post)
 

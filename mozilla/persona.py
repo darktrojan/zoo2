@@ -9,6 +9,7 @@ _headers = {
 	'Content-Type': 'application/x-www-form-urlencoded'
 }
 
+
 def _do_thing(method, path, body=None, is_retry=False):
 	try:
 		print path
@@ -24,6 +25,7 @@ def _do_thing(method, path, body=None, is_retry=False):
 		print 'closing connection and trying again'
 		_api_conn.close()
 		return _do_thing(method, path, body, is_retry=True)
+
 
 class PersonaBackend(object):
 	def authenticate(self, assertion, audience):
