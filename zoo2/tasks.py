@@ -113,6 +113,10 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 def download_translation(translation_pk):
 	t = Translation.objects.get(pk=translation_pk)
 	for f in t.repo.file_set.all():
+		if f.path == 'install.rdf':
+			download_install_rdf.delay(t.repo.pk, t.repo.head_commit)
+			continue
+
 		download_file.delay(f.pk, t.locale.code, t.repo.head_commit)
 
 
