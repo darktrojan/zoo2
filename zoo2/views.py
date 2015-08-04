@@ -1,3 +1,5 @@
+import hashlib
+import hmac
 import httplib
 import json
 import os.path
@@ -47,7 +49,14 @@ def log_out(request):
 @csrf_exempt
 @require_http_methods(['POST'])
 def hook(request):
-	# TODO hash requests with secret
+	secret = os.environ['GITHUB_HOOK_SECRET']
+	theirs = request.META['HTTP_X_HUB_SIGNATURE']
+	ours = 'sha1=' + hmac.new(secret, request.body, hashlib.sha1).hexdigest()
+
+	# TODO update Python and use hmac.compare_digest(theirs, ours)
+	if theirs != ours:
+		return HttpResponse('Stop.', status=httplib.INTERNAL_SERVER_ERROR, content_type='text/plain')
+
 	body = json.loads(request.body)
 	repo = get_object_or_404(Repo, full_name=body['repository']['full_name'])
 
