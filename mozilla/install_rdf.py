@@ -9,9 +9,8 @@ class InstallRDFParser(object):
 		else:
 			self.dom = parseString(rdf)
 
-		self.first_whitespace = self.dom.documentElement.firstChild.data
-		self.line_ending = '\r\n' if self.first_whitespace.startswith('\r\n') else '\n'
-		self.indentation = self.first_whitespace.lstrip(self.line_ending)
+		first_whitespace = self.dom.documentElement.firstChild.data
+		self.indentation = first_whitespace.lstrip('\n')
 
 		self.translations = dict()
 
@@ -92,19 +91,7 @@ class InstallRDFParser(object):
 		}
 
 	def _create_whitespace(self, lines, indents):
-		return self.dom.createTextNode(self.line_ending * lines + self.indentation * indents)
+		return self.dom.createTextNode('\n' * lines + self.indentation * indents)
 
 	def reconstruct(self):
-		return self.dom.toxml('utf-8').replace('?><', '?>' + self.line_ending + '<') + self.line_ending
-
-if __name__ == '__main__':
-	i = InstallRDFParser(
-		'/home/geoff/firefoxprofiles/sjua7g0g.test/extensions/menufilter@darktrojan.net/install.rdf',
-		is_path=True
-	)
-	# i.add_locale('ab-CD', 'name in test', 'description in test')
-	i.add_locale('fr', 'name in french', 'description in french')
-	# i.add_locale('uk', 'name in ukrainian', 'description in ukrainian')
-	# i.add_locale('mi', 'name in maori', 'description in maori')
-	i.add_locale('fr', 'name in french, but changed', 'description in french, but changed')
-	print i.reconstruct()
+		return self.dom.toxml('utf-8').replace('?><', '?>' + '\n' + '<') + '\n'

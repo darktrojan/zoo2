@@ -19,6 +19,10 @@ class ChromeManifestParser(object):
 		return ''.join(self.lines)
 
 	def add_locale(self, locale_code):
+		if locale_code in self.existing:
+			return
+
+		self.existing.append(locale_code)
 		new_line = self.locale_line.replace('en-US', locale_code)
 
 		index = -1
@@ -26,7 +30,6 @@ class ChromeManifestParser(object):
 			index += 1
 			if line.startswith('locale'):
 				parts = line.split()
-				self.existing.append(parts[2])
 				if parts[2] != 'en-US' and parts[2] > locale_code:
 					self.lines.insert(index, new_line)
 					return
