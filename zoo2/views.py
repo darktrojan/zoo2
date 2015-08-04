@@ -53,8 +53,14 @@ def hook(request):
 	theirs = request.META['HTTP_X_HUB_SIGNATURE']
 	ours = 'sha1=' + hmac.new(secret, request.body, hashlib.sha1).hexdigest()
 
-	# TODO update Python and use hmac.compare_digest(theirs, ours)
-	if theirs != ours:
+	valid = False
+	try:
+		valid = hmac.compare_digest(theirs, ours)
+	except AttributeError:
+		# hmac.compare_digest doesn't exist in Python 2.7.6
+		valid = theirs == ours
+
+	if not valid:
 		return HttpResponse('Stop.', status=httplib.INTERNAL_SERVER_ERROR, content_type='text/plain')
 
 	body = json.loads(request.body)
