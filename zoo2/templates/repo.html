@@ -6,13 +6,12 @@
 	<a href="{% url 'index' %}">Zoo2</a>
 	{{ repo.full_name }}
 </h1>
-<ul>{% for t in repo.translation_set.all %}
+<ul>{% for code, t in translated.iteritems %}
 	<li>
-		<a href="{% url 'translation' t.repo.full_name t.locale.code %}">{{ t.locale.name }} [{{ t.locale.code }}]</a>
+		<a href="{% url 'translation' t.repo.full_name code %}">{{ t.locale.name }} [{{ code }}]</a>
 		{% if t.dirty %}
 			*
 		{% endif %}
-
 		{% complete t.get_complete_counts %}
 	</li>
 {% endfor %}</ul>
@@ -24,14 +23,18 @@
 {% if user.is_authenticated %}
 	<form action="{% url 'new' repo.full_name %}" method="post">
 		{% csrf_token %}
+		<p>Create a new translation:
 		<select name="locale">{% for l in locales %}
-			{% if l.code in repo.translations_list_set %}
-				<option value="{{ l.code }}">{{ l.name }} *</option>
-			{% else %}
-				<option value="{{ l.code }}">{{ l.name }}</option>
+			{% if l.code != 'en-US' and l.code not in translated %}
+				{% if l.code in repo.translations_list_set %}
+					<option value="{{ l.code }}">{{ l.name }} *</option>
+				{% else %}
+					<option value="{{ l.code }}">{{ l.name }}</option>
+				{% endif %}
 			{% endif %}
 		{% endfor %}</select>
 		<button type="submit">Create</button>
+		</p>
 	</form>
 {% endif %}
 {% endblock %}

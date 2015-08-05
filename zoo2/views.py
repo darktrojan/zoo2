@@ -106,9 +106,11 @@ def github_auth(request):
 # repo_patterns
 def repo(request, full_name):
 	repo = get_object_or_404(Repo, full_name=full_name)
+	translated = dict((t.locale.code, t) for t in repo.translation_set.all())
 	return render(request, 'repo.html', {
 		'repo': repo,
-		'locales': Locale.objects.all()
+		'locales': Locale.objects.all(),
+		'translated': translated
 	})
 
 
