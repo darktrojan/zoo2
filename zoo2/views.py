@@ -5,6 +5,7 @@ import json
 import os.path
 import re
 import uuid
+from collections import OrderedDict
 from urllib import urlencode
 
 from django.contrib.auth import authenticate, login, logout
@@ -106,10 +107,10 @@ def github_auth(request):
 # repo_patterns
 def repo(request, full_name):
 	repo = get_object_or_404(Repo, full_name=full_name)
-	translated = dict((t.locale.code, t) for t in repo.translation_set.all())
+	translated = OrderedDict((t.locale.code, t) for t in repo.translation_set.all().order_by('locale__name'))
 	return render(request, 'repo.html', {
 		'repo': repo,
-		'locales': Locale.objects.all(),
+		'locales': Locale.objects.all().order_by('name'),
 		'translated': translated
 	})
 

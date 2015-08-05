@@ -24,7 +24,8 @@
 	<form action="{% url 'new' repo.full_name %}" method="post">
 		{% csrf_token %}
 		<p>Create a new translation:
-		<select name="locale">{% for l in locales %}
+		<select name="locale" required="">
+			<option value=""></option>{% for l in locales %}
 			{% if l.code != 'en-US' and l.code not in translated %}
 				{% if l.code in repo.translations_list_set %}
 					<option value="{{ l.code }}">{{ l.name }} *</option>
