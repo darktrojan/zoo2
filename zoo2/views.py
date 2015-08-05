@@ -22,6 +22,11 @@ from zoo2.models import *
 from zoo2 import tasks
 
 
+def _create_absolute_url(request, path):
+	scheme = 'https' if os.environ.get("HTTPS") == "on" else 'http'
+	return '%s://%s%s' % (scheme, request.get_host(), path)
+
+
 def index(request):
 	return render(request, 'index.html', {'repos': Repo.objects.all()})
 
@@ -130,7 +135,9 @@ def new(request, full_name):
 	except IntegrityError:
 		return HttpResponse('oops')
 
-	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))
+	return HttpResponseRedirect(
+		_create_absolute_url(request, reverse('translation', args=(full_name, code)))
+	)
 
 
 # translation_pattens
@@ -224,7 +231,9 @@ def save(request, full_name, code, path):
 			translation.dirty = True
 			translation.save(update_fields=['dirty'])
 
-	return HttpResponseRedirect(reverse('translation', args=(full_name, code)))
+	return HttpResponseRedirect(
+		_create_absolute_url(reverse('translation', args=(full_name, code)))
+	)
 
 
 @require_http_methods(['POST'])
