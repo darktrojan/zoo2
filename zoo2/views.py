@@ -23,7 +23,7 @@ from zoo2 import tasks
 
 
 def _create_absolute_url(request, path):
-	scheme = 'https' if os.environ.get("HTTPS") == "on" else 'http'
+	scheme = 'https' if os.environ.get('HTTPS') == 'on' else 'http'
 	return '%s://%s%s' % (scheme, request.get_host(), path)
 
 
@@ -112,7 +112,9 @@ def github_auth(request):
 # repo_patterns
 def repo(request, full_name):
 	repo = get_object_or_404(Repo, full_name=full_name)
-	translated = OrderedDict((t.locale.code, t) for t in repo.translation_set.all().order_by('locale__name'))
+	translated = OrderedDict(
+		(t.locale.code, t) for t in repo.translation_set.all().order_by('locale__name')
+	)
 	return render(request, 'repo.html', {
 		'repo': repo,
 		'locales': Locale.objects.all().order_by('name'),
@@ -164,11 +166,16 @@ def translation(request, full_name, code):
 	})
 
 
-def file(request, full_name, code, path):
+def file(request, full_name, code, path, fileaction):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	locale = get_object_or_404(Locale, code=code)
 	translation = get_object_or_404(Translation, repo=repo, locale=locale)
 	is_owner = translation.is_owner(request.user)
+
+	if not is_owner and fileaction != 'view':
+		return HttpResponseRedirect(
+			_create_absolute_url(request, reverse('view', args=([full_name, code, path])))
+		)
 
 	file = get_object_or_404(File, repo=repo, path=path)
 	string_set = file.string_set.filter(locale=Locale.objects.get(code='en-US')).order_by('pk')
@@ -196,7 +203,8 @@ def file(request, full_name, code, path):
 		'locale': locale,
 		'file': file,
 		'strings': strings,
-		'is_owner': is_owner
+		'is_owner': is_owner,
+		'fileaction': fileaction
 	})
 
 

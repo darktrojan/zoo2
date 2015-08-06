@@ -9,20 +9,27 @@ span#username {
 	line-height: 25.4px;
 }
 
+#stickyactions {
+	position: sticky;
+	top: 0;
+	height: 0;
+	margin-left: 800px;
+}
+
 .translated {
 	display: inline-block;
 	height: 10px;
-	background-color: green;
+	background-color: #090;
 }
 .duplicate {
 	display: inline-block;
 	height: 10px;
-	background-color: orange;
+	background-color: #fc0;
 }
 .missing {
 	display: inline-block;
 	height: 10px;
-	background-color: red;
+	background-color: #f00;
 }
 
 .row1 {
@@ -30,6 +37,19 @@ span#username {
 }
 .row2 {
 	background-color: #f8f8f8;
+}
+
+.row1.rowduplicate {
+	background-color: #f6d44c;
+}
+.row2.rowduplicate {
+	background-color: #fedc54;
+}
+.row1.rowmissing {
+	background-color: #f64e4e;
+}
+.row2.rowmissing {
+	background-color: #fe5656;
 }
 
 table#translation_strings {
@@ -43,7 +63,7 @@ table#translation_strings td {
 	padding: 4px 8px;
 }
 table#translation_strings td.key {
-	max-width: 300px;
+	width: 250px;
 	font-size: 0.75em;
 	line-height: 18px;
 	vertical-align: baseline;

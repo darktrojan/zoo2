@@ -7,9 +7,13 @@
 	<a href="{% url 'translation' repo.full_name locale.code %}">{{ locale.name }}</a>
 	{{ file.path }}
 </h1>
-{% if is_owner %}
+{% if fileaction == 'edit' %}
 <form action="{% url 'save' repo.full_name locale.code file.path %}" method="post">
 	{% csrf_token %}
+	<div id="stickyactions">
+		<button type="button" id="copy_missing">Copy missing strings</button>
+		<button type="submit">Save</button>
+	</div>
 {% endif %}
 	<table id="translation_strings">{% for s in strings %}
 		{% if s.base.pre != '' %}
@@ -24,7 +28,7 @@
 		</tr>
 		<tr class="{{ rowclass }}">
 			<td class="value">
-				{% if is_owner %}
+				{% if fileaction == 'edit' %}
 				<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
 				{% else %}
 				{{ s.translated }}
@@ -32,8 +36,8 @@
 			</td>
 		</tr>
 	{% endfor %}</table>
-{% if is_owner %}
-	<button type="submit">Save</button>
+{% if fileaction == 'edit' %}
 </form>
+<script src="/static/file.js" type="text/javascript"></script>
 {% endif %}
 {% endblock %}
