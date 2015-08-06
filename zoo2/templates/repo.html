@@ -3,7 +3,7 @@
 
 {% block 'content' %}
 <h1>
-	<a href="{% url 'index' %}">Zoo2</a>
+	<span><a href="{% url 'index' %}">Zoo2</a></span>
 	{{ repo.full_name }}
 </h1>
 <ul>{% for code, t in translated.iteritems %}

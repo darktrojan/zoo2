@@ -3,10 +3,20 @@ td {
 	font-family: sans-serif;
 	font-size: 14px;
 	line-height: 18px;
+	color: #333;
 }
 
 span#username {
 	line-height: 25.4px;
+}
+
+a {
+	color: #2A49BF;
+	text-decoration: none;
+}
+h1 > span:after {
+	content: ' \22B3';
+	font-weight: 100;
 }
 
 #stickyactions {
