@@ -11,9 +11,20 @@ span#username {
 
 #stickyactions {
 	position: sticky;
-	top: 0;
+	top: 8px;
 	height: 0;
-	margin-left: 800px;
+	margin-left: 798px;
+}
+#stickyinner {
+	padding: 8px;
+	width: 200px;
+	background-color: #f0f0f0;
+	text-align: center;
+}
+#stickyinner ul {
+	list-style: none inside;
+	margin-top: 0;
+	padding: 0;
 }
 
 .translated {
@@ -39,16 +50,16 @@ span#username {
 	background-color: #f8f8f8;
 }
 
-.row1.rowduplicate {
+.row1.rowduplicate td.marker {
 	background-color: #f6d44c;
 }
-.row2.rowduplicate {
+.row2.rowduplicate td.marker {
 	background-color: #fedc54;
 }
-.row1.rowmissing {
+.row1.rowmissing td.marker {
 	background-color: #f64e4e;
 }
-.row2.rowmissing {
+.row2.rowmissing td.marker {
 	background-color: #fe5656;
 }
 
@@ -67,6 +78,11 @@ table#translation_strings td.key {
 	font-size: 0.75em;
 	line-height: 18px;
 	vertical-align: baseline;
+}
+table#translation_strings td.marker {
+	width: 4px;
+	padding-left: 0;
+	padding-right: 0;
 }
 table#translation_strings td.base {
 	width: 500px;

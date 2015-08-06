@@ -240,7 +240,7 @@ def save(request, full_name, code, path):
 			translation.save(update_fields=['dirty'])
 
 	return HttpResponseRedirect(
-		_create_absolute_url(reverse('translation', args=(full_name, code)))
+		_create_absolute_url(request, reverse('translation', args=(full_name, code)))
 	)
 
 
