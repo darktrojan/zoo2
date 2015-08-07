@@ -42,11 +42,8 @@ class Repo(models.Model):
 		self.translations_list = ' '.join(values)
 	translations_list_set = property(_get_translations_list_set, _set_translations_list_set)
 
-	def find_files(self):
-		if self.head_commit == '':
-			self.head_commit = api.get_head_commit_sha(self.full_name, self.branch)
-			self.save(update_fields=['head_commit'])
-		tree_sha = api.get_commit_tree_sha(self.full_name, self.head_commit)
+	def find_files(self, head_commit):
+		tree_sha = api.get_commit_tree_sha(self.full_name, head_commit)
 		tree_sha = api.traverse_tree(
 			self.full_name, os.path.join(self.locale_path, 'en-US').split('/'), tree_sha
 		)

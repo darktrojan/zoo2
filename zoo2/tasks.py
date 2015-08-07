@@ -32,7 +32,7 @@ def create_repo(full_name, branch, owner_pk):
 	repo.head_commit = head_commit
 	repo.save()
 
-	for f in repo.find_files():
+	for f in repo.find_files(head_commit):
 		File(repo=repo, path=f).save()
 
 	if not api.create_fork(repo.full_name):
@@ -52,7 +52,8 @@ def create_repo(full_name, branch, owner_pk):
 @app.task
 def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 	repo = Repo.objects.get(pk=repo_pk)
-	repo.update_fork(head_commit)
+	# wait a bit to give GitHub a chance to catch itself up
+	update_fork.apply_async(args=[repo_pk, head_commit], countdown=3)
 
 	# TODO stop assuming that locale_path hasn't changed
 	m = os.path.join(repo.locale_path, '([a-z]{2,3}(-[A-Z]{2})?)', '(.*)$')
@@ -74,6 +75,9 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 	print 'These files have changed:'
 	print changed_files
 
+	if 'install.rdf' in changed_files:
+		download_install_rdf.delay(repo.pk, head_commit)
+
 	if 'chrome.manifest' in changed_files:
 		manifest = raw.get_raw_file(repo.full_name, head_commit, 'chrome.manifest')
 
@@ -84,7 +88,7 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 	if file_list_changed:
 		existing_files = [f.path for f in repo.file_set.all()]
 
-		for f in repo.find_files():
+		for f in repo.find_files(head_commit):
 			if f in existing_files:
 				existing_files.remove(f)
 			else:
@@ -94,10 +98,6 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 			repo.file_set.get(path=f).delete()
 
 	for f in changed_files:
-		if f == 'install.rdf':
-			download_install_rdf.delay(repo.pk, head_commit)
-			continue
-
 		match = re.match(m, f)
 		if match is not None:
 			code = match.group(1)
@@ -115,6 +115,12 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 				pass
 			except File.DoesNotExist:
 				pass
+
+
+@app.task
+def update_fork(repo_pk, head_commit):
+	repo = Repo.objects.get(pk=repo_pk)
+	repo.update_fork(head_commit)
 
 
 @app.task
