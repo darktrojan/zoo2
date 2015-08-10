@@ -92,7 +92,7 @@ def github_auth(request):
 			'https://github.com/login/oauth/authorize?' + urlencode({
 				'client_id': '7d5bd4b7b4ee040275ba',
 				'state': state,
-				'scope': ','.join(['write:repo_hook'])
+				'scope': ','.join(['public_repo'])
 			})
 		)
 
@@ -102,6 +102,12 @@ def github_auth(request):
 		return HttpResponse('hacking attempt', status=httplib.UNAUTHORIZED)
 
 	token = auth.get_access_token(code, state)
+	try:
+		profile = request.user.profile
+	except UserProfile.DoesNotExist:
+		profile = UserProfile(user=request.user)
+	profile.github_token = token['access_token']
+	profile.save(update_fields=['github_token'])
 
 	return HttpResponse(
 		'%s\n%s\n' % (token['access_token'], token['scope']),

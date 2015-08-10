@@ -11,14 +11,20 @@ _headers['User-Agent'] = 'darktrojan'
 _api_conn = HTTPSConnection('api.github.com')
 
 
-def _do_thing(method, path, body=None, is_retry=False):
+def _do_thing(method, path, body=None, token=None, is_retry=False):
 	body_json = None
 	if body is not None:
 		body_json = json.dumps(body)
 
+	# Use a different user's token if given
+	headers = dict(_headers)
+	if token is not None and token != '':
+		print 'Using a user\'s GitHub token: %.8s' % token
+		headers['Authorization'] = 'token %s' % token
+
 	try:
 		print ' '.join([method, path])
-		_api_conn.request(method, path, headers=_headers, body=body_json)
+		_api_conn.request(method, path, headers=headers, body=body_json)
 		response = _api_conn.getresponse()
 		print ' '.join([method, path, str(response.status)])
 		response_body = response.read()
@@ -35,7 +41,7 @@ def _do_thing(method, path, body=None, is_retry=False):
 
 		print 'closing connection and trying again'
 		_api_conn.close()
-		return _do_thing(method, path, body, is_retry=True)
+		return _do_thing(method, path, body, token=token, is_retry=True)
 
 
 def get_head_commit_sha(repo, branch):
@@ -145,14 +151,14 @@ def update_head_commit_sha(repo, branch, commit_sha, force=False):
 		print _do_thing('POST', path, body)
 
 
-def create_pull_request(repo, head, base, title):
+def create_pull_request(repo, head, base, title, token=None):
 	path = os.path.join('/repos', repo, 'pulls')
 	body = {
 		'head': head,
 		'base': base,
 		'title': title,
 	}
-	return _do_thing('POST', path, body)['number']
+	return _do_thing('POST', path, body, token=token)['number']
 
 
 def create_fork(repo):

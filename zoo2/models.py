@@ -12,6 +12,11 @@ from mozilla.install_rdf import InstallRDFParser
 from mozilla.parser import getParser
 
 
+class UserProfile(models.Model):
+	user = models.OneToOneField(User, related_name='profile')
+	github_token = models.CharField(max_length=40)
+
+
 class Locale(models.Model):
 	code = models.CharField(max_length=5, primary_key=True)
 	name = models.CharField(max_length=32)
@@ -135,7 +140,16 @@ class Translation(models.Model):
 
 		head = 'darktrojan-test:%s' % self.branch_name
 		title = 'Update %s translation' % self.locale.name
-		self.pull_request = api.create_pull_request(self.repo.full_name, head, self.repo.branch, title)
+
+		token = None
+		try:
+			token = self.owner.profile.github_token
+		except UserProfile.DoesNotExist:
+			pass
+
+		self.pull_request = api.create_pull_request(
+			self.repo.full_name, head, self.repo.branch, title, token=token
+		)
 		self.save(update_fields=['pull_request'])
 
 	def set_strings_clean(self):
