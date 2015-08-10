@@ -107,7 +107,7 @@ def github_auth(request):
 	except UserProfile.DoesNotExist:
 		profile = UserProfile(user=request.user)
 	profile.github_token = token['access_token']
-	profile.save(update_fields=['github_token'])
+	profile.save()
 
 	return HttpResponse(
 		'%s\n%s\n' % (token['access_token'], token['scope']),
