@@ -6,7 +6,7 @@
 </h1>
 <ul>{% for r in repos %}
 	<li>
-		<a href="{% url 'repo' r.full_name %}">{{ r.full_name }}</a>
+		<a href="{% url 'repo' r.full_name %}">{{ r.addon_name }}</a>
 	</li>
 {% endfor %}</ul>
 {% endblock %}

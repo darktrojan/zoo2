@@ -28,6 +28,7 @@ class Locale(models.Model):
 
 class Repo(models.Model):
 	full_name = models.CharField(max_length=255, unique=True)
+	addon_name = models.CharField(max_length=255)
 	locale_path = models.CharField(max_length=255)
 	translations_list = models.CharField(max_length=255, blank=True)
 	branch = models.CharField(max_length=255)

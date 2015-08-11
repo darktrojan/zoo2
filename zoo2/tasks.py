@@ -147,6 +147,8 @@ def download_install_rdf(repo_pk, head_commit):
 
 	f = raw.get_raw_file(repo.full_name, head_commit, 'install.rdf')
 	parser = InstallRDFParser(f)
+	repo.addon_name = parser.translations['en-US']['name']
+	repo.save(update_fields=['addon_name'])
 	for l, t in parser.translations.iteritems():
 		try:
 			locale = Locale.objects.get(code=l)

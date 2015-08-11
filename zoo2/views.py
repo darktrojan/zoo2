@@ -28,7 +28,7 @@ def _create_absolute_url(request, path):
 
 
 def index(request):
-	return render(request, 'index.html', {'repos': Repo.objects.all().order_by('full_name')})
+	return render(request, 'index.html', {'repos': Repo.objects.all().order_by('addon_name')})
 
 
 def log_out(request):
