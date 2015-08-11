@@ -39,7 +39,8 @@ def create_repo(full_name, branch, owner_pk):
 		# returns True if a fork was created, and that takes time so we can't update now
 		api.update_head_commit_sha(repo.fork_name, 'zoo2', head_commit, force=True)
 
-	# TODO add push hook
+	token = owner.profile.github_token
+	api.add_webhook(repo.full_name, token)
 
 	for f in repo.file_set.all():
 		if f.path == 'install.rdf':

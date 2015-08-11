@@ -172,6 +172,21 @@ def create_fork(repo):
 	return True
 
 
+def add_webhook(repo, token):
+	path = os.path.join('/repos', repo, 'hooks')
+	body = {
+		'name': 'web',
+		'active': True,
+		'events': ['push'],
+		'config': {
+			'url': '%s/hook' % os.environ['BASE_URL'],
+			'content_type': 'json',
+			'secret': os.environ['GITHUB_HOOK_SECRET']
+		}
+	}
+	return _do_thing('POST', path, body, token=token)
+
+
 def get_user_data(token):
 	# token must have user:email scope
 	data = _do_thing('GET', '/user', token=token)
