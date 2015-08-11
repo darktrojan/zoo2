@@ -54,6 +54,7 @@ TEMPLATES = [
 
 AUTHENTICATION_BACKENDS = (
 	'mozilla.persona.PersonaBackend',
+	'github.auth.GitHubBackend',
 )
 
 WSGI_APPLICATION = 'zoo2.wsgi.application'

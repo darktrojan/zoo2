@@ -12,10 +12,11 @@
 	{% if user.is_authenticated %}
 	<div style="text-align: right">
 		<span id="username">{{ user.username }}</span>
-		<a href="#" id="sign_out" class="persona-button"><span>Sign Out</span></a>
+		<a href="{% url 'log_out' %}" id="sign_out" class="persona-button"><span>Sign Out</span></a>
 	</div>
 	{% else %}
 	<div style="text-align: right">
+		<a href="{% url 'github_auth' %}"><span>GitHub Sign In</span></a>
 		<a href="#" id="sign_in" class="persona-button"><span>Sign In</span></a>
 	</div>
 	{% endif %}

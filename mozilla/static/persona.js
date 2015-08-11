@@ -71,8 +71,10 @@ var XHR = {
 	var signoutLink = document.getElementById('sign_out');
 	if (signoutLink) {
 		signoutLink.onclick = function() {
-			navigator.id.logout();
-			return false;
+			if (/(^|;)\s*persona_email=/.test(document.cookie)) {
+				navigator.id.logout();
+				return false;
+			}
 		};
 	}
 })();
@@ -84,7 +86,7 @@ navigator.id.watch({
 			var cookie = cookies[i].trim();
 			if (cookie) {
 				var parts = cookie.split('=', 2);
-				if (parts[0] == 'email') {
+				if (parts[0] == 'persona_email') {
 					return decodeURIComponent(parts[1]).replace(/^"|"$/g, '');
 				}
 			}
@@ -92,7 +94,7 @@ navigator.id.watch({
 		return null;
 	})(),
 	onlogin: function(assertion) {
-		XHR.post('/log_in', 'assertion=' + encodeURIComponent(assertion), function() {
+		XHR.post('/persona_auth', 'assertion=' + encodeURIComponent(assertion), function() {
 			location.reload();
 		});
 	},

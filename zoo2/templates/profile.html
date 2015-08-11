@@ -1,0 +1,14 @@
+{% extends 'page.html' %}
+
+{% block 'content' %}
+<h1>
+	<span><a href="{% url 'index' %}">Zoo2</a></span>
+	User Profile
+</h1>
+{{ user.pk }}
+{{ user.email }}
+{#% if not user.profile or not user.profile.github_token %#}
+	<p><a href="{% url 'github_auth' %}">Click here to register your GitHub account</a></p>
+{#% endif %#}
+{{ user.profile.github_token }}
+{% endblock %}

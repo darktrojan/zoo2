@@ -31,24 +31,10 @@ def index(request):
 	return render(request, 'index.html', {'repos': Repo.objects.all()})
 
 
-@csrf_exempt
-@require_http_methods(['POST'])
-def log_in(request):
-	assertion = request.POST['assertion']
-	user = authenticate(assertion=assertion, audience=request.META['HTTP_HOST'])
-	if user is not None:
-		login(request, user)
-		response = HttpResponse('logged in')
-		response.set_cookie('email', user.email)
-		return response
-	else:
-		return HttpResponse('not logged in')
-
-
 def log_out(request):
 	logout(request)
-	response = HttpResponse('logged out')
-	response.delete_cookie('email')
+	response = HttpResponseRedirect(_create_absolute_url(request, '/'))
+	response.delete_cookie('persona_email')
 	return response
 
 
@@ -84,15 +70,33 @@ def hook(request):
 	return HttpResponse('Okay, got it.', status=httplib.CREATED, content_type='text/plain')
 
 
+def profile(request):
+	return render(request, 'profile.html')
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def persona_auth(request):
+	assertion = request.POST['assertion']
+	user = authenticate(assertion=assertion, audience=request.META['HTTP_HOST'])
+	if user is not None:
+		login(request, user)
+		response = HttpResponse('logged in')
+		response.set_cookie('persona_email', user.email)
+		return response
+	else:
+		return HttpResponse('not logged in')
+
+
 def github_auth(request):
 	if 'code' not in request.GET or 'state' not in request.GET:
 		state = str(uuid.uuid4())
 		request.session['state'] = state
 		return HttpResponseRedirect(
 			'https://github.com/login/oauth/authorize?' + urlencode({
-				'client_id': '7d5bd4b7b4ee040275ba',
+				'client_id': os.environ['GITHUB_CLIENT_ID'],
 				'state': state,
-				'scope': ','.join(['public_repo'])
+				'scope': ','.join(['public_repo', 'user:email'])
 			})
 		)
 
@@ -101,18 +105,16 @@ def github_auth(request):
 	if state != request.session['state']:
 		return HttpResponse('hacking attempt', status=httplib.UNAUTHORIZED)
 
-	token = auth.get_access_token(code, state)
-	try:
-		profile = request.user.profile
-	except UserProfile.DoesNotExist:
-		profile = UserProfile(user=request.user)
-	profile.github_token = token['access_token']
-	profile.save()
+	token = auth.get_access_token(code, state)['access_token']
 
-	return HttpResponse(
-		'%s\n%s\n' % (token['access_token'], token['scope']),
-		content_type='text/plain'
-	)
+	if request.user.pk is not None:
+		# TODO what if this GitHub user is linked to a different account here?
+		auth.save_to_profile(request.user, token)
+	else:
+		user = authenticate(token=token)
+		login(request, user)
+
+	return HttpResponseRedirect(_create_absolute_url(request, '/profile'))
 
 
 # repo_patterns

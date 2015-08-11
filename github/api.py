@@ -170,3 +170,13 @@ def create_fork(repo):
 	path = os.path.join('/repos', repo, 'forks')
 	_do_thing('POST', path)
 	return True
+
+
+def get_user_data(token):
+	# token must have user:email scope
+	data = _do_thing('GET', '/user', token=token)
+	for e in _do_thing('GET', '/user/emails', token=token):
+		if e['primary']:
+			data['primary_email'] = e['email']
+			break
+	return data

@@ -14,6 +14,7 @@ from mozilla.parser import getParser
 
 class UserProfile(models.Model):
 	user = models.OneToOneField(User, related_name='profile')
+	github_username = models.CharField(max_length=255)
 	github_token = models.CharField(max_length=40)
 
 

@@ -55,6 +55,7 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 	# wait a bit to give GitHub a chance to catch itself up
 	update_fork.apply_async(args=[repo_pk, head_commit], countdown=3)
 
+	# TODO update translations' head_commit if ...?
 	# TODO stop assuming that locale_path hasn't changed
 	m = os.path.join(repo.locale_path, '([a-z]{2,3}(-[A-Z]{2})?)', '(.*)$')
 
