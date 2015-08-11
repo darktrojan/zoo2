@@ -7,24 +7,34 @@
 	<span><a href="{% url 'repo' repo.full_name %}">{{ repo.full_name }}</a></span>
 	{{ locale.name }}
 </h1>
-<p>Translator: {{ translation.owner.username }}</p>
+<p>Translator: {{ translation.owner.username }}
 {% if translation.pull_request > 0 %}
-	<p><a href="https://github.com/{{ repo.full_name }}/pull/{{ translation.pull_request }}">View current pull request</a></p>
+	<a href="https://github.com/{{ repo.full_name }}/pull/{{ translation.pull_request }}">View current pull request</a>
 {% endif %}
-<ul>{% for k, v in counts.iteritems %}
-	<li>
-		<a href="{% url fileaction repo.full_name locale.code k %}">{{ k }}</a>
-		{% if v.dirty %}
-			*
-		{% endif %}
-		{% complete v.counts %}
-	</li>
-{% endfor %}</ul>
+</p>
+{% for k, v in counts.iteritems %}
+	{% if forloop.first %}
+		<table>
+	{% endif %}
+	<tr class="{% cycle 'row1' 'row2' %}">
+		<td>
+			<a href="{% url fileaction repo.full_name locale.code k %}">{{ k }}</a>
+			{% if v.dirty %}
+				*
+			{% endif %}
+		</td>
+		<td width="400">{% complete v.counts %}</td>
+	</tr>
+	{% if forloop.last %}
+		</table>
+		<p class="small">* File with unsaved changes.</p>
+	{% endif %}
+{% endfor %}
 
 {% if translation.dirty and is_owner %}
 	<form action="{% url 'push' repo.full_name locale.code %}" method="post">
 		{% csrf_token %}
-		<button type="submit">Push to GitHub</button>
+		<p><button type="submit">Push to GitHub</button></p>
 	</form>
 {% endif %}
 {% endblock %}

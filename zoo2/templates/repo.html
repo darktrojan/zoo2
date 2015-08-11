@@ -6,19 +6,24 @@
 	<span><a href="{% url 'index' %}">Zoo2</a></span>
 	{{ repo.full_name }}
 </h1>
-<ul>{% for code, t in translated.iteritems %}
-	<li>
-		<a href="{% url 'translation' t.repo.full_name code %}">{{ t.locale.name }} [{{ code }}]</a>
-		{% if t.dirty %}
-			*
-		{% endif %}
-		{% complete t.get_complete_counts %}
-	</li>
-{% endfor %}</ul>
-
-<p>Existing translations:{% for t in repo.translations_list_set %}
-	{{ t }}
-{% endfor %}</p>
+{% for code, t in translated.iteritems %}
+	{% if forloop.first %}
+		<table style="border-collapse: collapse;">
+	{% endif %}
+	<tr class="{% cycle 'row1' 'row2' %}">
+		<td>
+			<a href="{% url 'translation' t.repo.full_name code %}">{{ t.locale.name }} [{{ code }}]</a>
+			{% if t.dirty %}
+				*
+			{% endif %}
+		</td>
+		<td width="400">{% complete t.get_complete_counts %}</td>
+	</tr>
+	{% if forloop.last %}
+		</table>
+		<p class="small">* Translation with unsaved changes.</p>
+	{% endif %}
+{% endfor %}
 
 {% if user.is_authenticated %}
 	<form action="{% url 'new' repo.full_name %}" method="post">
@@ -35,7 +40,8 @@
 			{% endif %}
 		{% endfor %}</select>
 		<button type="submit">Create</button>
-		</p>
+		<br />
+		<span class="small">* An existing translation, which will be fetched from GitHub when first used. This might take a few seconds.</span></p>
 	</form>
 {% endif %}
 {% endblock %}

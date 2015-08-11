@@ -28,7 +28,7 @@ def _create_absolute_url(request, path):
 
 
 def index(request):
-	return render(request, 'index.html', {'repos': Repo.objects.all()})
+	return render(request, 'index.html', {'repos': Repo.objects.all().order_by('full_name')})
 
 
 def log_out(request):
@@ -157,8 +157,8 @@ def translation(request, full_name, code):
 	translation = get_object_or_404(Translation, repo=repo, locale=locale)
 	is_owner = translation.is_owner(request.user)
 
-	counts = dict()
-	for f in repo.file_set.all():
+	counts = OrderedDict()
+	for f in repo.file_set.all().order_by('path'):
 		counts[f.path] = {
 			'counts': f.get_complete_counts(locale),
 			'dirty': f.has_dirty_strings(locale)

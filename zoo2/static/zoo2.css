@@ -6,6 +6,11 @@ td {
 	color: #333;
 }
 
+.small {
+	font-size: 11px;
+	line-height: 13px;
+}
+
 #auth {
 	text-align: right;
 	line-height: 25.4px;
@@ -74,15 +79,15 @@ h1 > span:after {
 	background-color: #fe5656;
 }
 
-table#translation_strings {
+table {
 	border-collapse: collapse;
+}
+table td {
+	padding: 4px 8px;
 }
 table#translation_strings tr.note td {
 	background-color: #eef;
 	font-size: 0.75em;
-}
-table#translation_strings td {
-	padding: 4px 8px;
 }
 table#translation_strings td.key {
 	width: 250px;
