@@ -6,7 +6,8 @@ td {
 	color: #333;
 }
 
-span#username {
+#auth {
+	text-align: right;
 	line-height: 25.4px;
 }
 

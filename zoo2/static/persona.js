@@ -60,6 +60,14 @@ var XHR = {
 };
 
 (function() {
+	var ghSigninLink = document.getElementById('gh_sign_in');
+	if (ghSigninLink) {
+		ghSigninLink.onclick = function() {
+			location.href = '/github_auth';
+			return false;
+		};
+	}
+
 	var signinLink = document.getElementById('sign_in');
 	if (signinLink) {
 		signinLink.onclick = function() {
@@ -73,8 +81,10 @@ var XHR = {
 		signoutLink.onclick = function() {
 			if (/(^|;)\s*persona_email=/.test(document.cookie)) {
 				navigator.id.logout();
-				return false;
+			} else {
+				location.href = '/log_out';
 			}
+			return false;
 		};
 	}
 })();

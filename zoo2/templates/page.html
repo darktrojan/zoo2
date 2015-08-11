@@ -4,22 +4,17 @@
 	<meta charset="utf-8" />
 	<title>{% block 'title' %}{% endblock %}</title>
 	<link rel="stylesheet" type="text/css" href="/static/zoo2.css" />
-	<link rel="stylesheet" type="text/css" href="/static/buttons.css" />
 	<script src="https://login.persona.org/include.js" defer="true"></script>
 	<script src="/static/persona.js" type="text/javascript" defer="true"></script>
 </head>
 <body>
-	{% if user.is_authenticated %}
-	<div style="text-align: right">
+	<div id="auth">{% if user.is_authenticated %}
 		<span id="username">{{ user.username }}</span>
-		<a href="{% url 'log_out' %}" id="sign_out" class="persona-button"><span>Sign Out</span></a>
-	</div>
+		<button id="sign_out">Sign Out</button>
 	{% else %}
-	<div style="text-align: right">
-		<a href="{% url 'github_auth' %}"><span>GitHub Sign In</span></a>
-		<a href="#" id="sign_in" class="persona-button"><span>Sign In</span></a>
-	</div>
-	{% endif %}
+		<button id="gh_sign_in">GitHub Sign In</button>
+		<button id="sign_in">Persona Sign In</button>
+	{% endif %}</div>
 	{% block 'content' %}{% endblock %}
 </body>
 </html>

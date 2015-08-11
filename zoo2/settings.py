@@ -72,7 +72,5 @@ USE_TZ = True
 STATIC_ROOT = 'staticfiles'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (
-	# os.path.join(BASE_DIR, 'venv/lib/python2.7/site-packages/django/contrib/admin/static/admin'),
 	os.path.join(BASE_DIR, 'zoo2/static'),
-	os.path.join(BASE_DIR, 'mozilla/static'),
 )
