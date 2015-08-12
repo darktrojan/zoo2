@@ -28,7 +28,16 @@ def _create_absolute_url(request, path):
 
 
 def index(request):
-	return render(request, 'index.html', {'repos': Repo.objects.all().order_by('addon_name')})
+	user_translations = []
+	if request.user.pk is not None:
+		user_translations = request.user.translation_set.all().order_by(
+			'repo__addon_name', 'locale__name'
+		)
+	return render(request, 'index.html', {
+		'repos': Repo.objects.all().order_by('addon_name'),
+		'translation_count': len(set([t.locale.code for t in Translation.objects.all()])),
+		'user_translations': user_translations
+	})
 
 
 def log_out(request):

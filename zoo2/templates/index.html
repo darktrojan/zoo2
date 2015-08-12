@@ -4,9 +4,34 @@
 <h1>
 	Zoo2
 </h1>
-<ul>{% for r in repos %}
-	<li>
-		<a href="{% url 'repo' r.full_name %}">{{ r.addon_name }}</a>
-	</li>
-{% endfor %}</ul>
+<div style="display: flex">
+	<div style="width: 800px">
+		<p>Zoo is a means of localizing Mozilla extensions that uses Git and GitHub for file management. There are currently {{ repos.count }} repo{{ repos.count | pluralize }}, and translations in {{ translation_count }} language{{ translation_count | pluralize }}.</p>
+		<p>Here's how it works: your code is on GitHub, Zoo forks it, translators translate it, then Zoo sends you a pull request. You merge the changes into your code and release them. Easy.</p>
+		<p style="text-align: center;"><img src="/static/forkjoin.svg" width="400" /></p>
+		<p>You can file issues on <a href="https://github.com/darktrojan/zoo2/issues">Zoo's GitHub page</a>.</p>
+	</div>
+
+	<div style="flex: auto">
+		<h2>Repos</h2>
+		<ul style="padding: 0; list-style-position: inside">{% for r in repos %}
+			<li>
+				<a href="{% url 'repo' r.full_name %}">{{ r.addon_name }}</a>
+			</li>
+		{% endfor %}</ul>
+
+		{% for t in user_translations %}
+			{% if forloop.first %}
+				<h3>Your translations</h3>
+				<ul style="padding: 0; list-style-position: inside">
+			{% endif %}
+			<li>
+				<a href="{% url 'translation' t.repo.full_name t.locale.code %}">{{ t.repo.addon_name }} &ndash; {{ t.locale.name }}</a>
+			</li>
+			{% if forloop.last %}
+				</ul>
+			{% endif %}
+		{% endfor %}
+	</div>
+</div>
 {% endblock %}

@@ -12,7 +12,7 @@
 	{% endif %}
 	<tr class="{% cycle 'row1' 'row2' %}">
 		<td>
-			<a href="{% url 'translation' t.repo.full_name code %}">{{ t.locale.name }} [{{ code }}]</a>
+			<a href="{% url 'translation' t.repo.full_name code %}">{{ t.locale.name }}</a>
 			{% if t.dirty %}
 				*
 			{% endif %}
