@@ -4,7 +4,11 @@ import dj_database_url
 DEBUG = 'ZOO_DEBUG' in os.environ
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
-ALLOWED_HOSTS = ['*']
+if DEBUG:
+	ALLOWED_HOSTS = ['*']
+else:
+	ALLOWED_HOSTS = ['zoo2translate.herokuapp.com']
+	SECURE_HSTS_SECONDS = 31536000
 
 INSTALLED_APPS = (
 	'django.contrib.admin',
