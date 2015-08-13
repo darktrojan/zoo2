@@ -34,6 +34,7 @@ class Repo(models.Model):
 	branch = models.CharField(max_length=255)
 	head_commit = models.CharField(max_length=40)
 	owner = models.ForeignKey(User)
+	amo_stub = models.CharField(max_length=32, blank=True, verbose_name='AMO stub')
 
 	def __unicode__(self):
 		return self.full_name

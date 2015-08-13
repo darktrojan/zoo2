@@ -7,6 +7,13 @@
 	{{ repo.addon_name }}
 </h1>
 {% html_block 'page_alert' %}
+<p>
+	Owner: {{ repo.owner.username }}
+	<a href="https://github.com/{{ repo.full_name }}">View on GitHub</a>
+	{% if repo.amo_stub %}
+		<a href="https://addons.mozilla.org/addon/{{ repo.amo_stub }}">View on addons.mozilla.org</a>
+	{% endif %}
+</p>
 {% for code, t in translated.iteritems %}
 	{% if forloop.first %}
 		<table style="border-collapse: collapse;">
