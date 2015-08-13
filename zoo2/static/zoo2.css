@@ -10,6 +10,12 @@ td {
 	font-size: 11px;
 	line-height: 13px;
 }
+.error {
+	color: #f00;
+}
+.confirm {
+	color: #090;
+}
 
 #auth {
 	text-align: right;
@@ -95,7 +101,7 @@ table#translation_strings td.key {
 	line-height: 18px;
 	vertical-align: baseline;
 }
-table#translation_strings td.marker {
+td.marker {
 	width: 4px;
 	padding-left: 0;
 	padding-right: 0;

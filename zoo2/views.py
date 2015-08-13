@@ -80,7 +80,30 @@ def hook(request):
 
 
 def profile(request):
-	return render(request, 'profile.html')
+	if request.user.pk is None:
+		return HttpResponseRedirect(_create_absolute_url(request, '/'))
+
+	original_username = request.user.username
+	error_message = None
+	if request.method == 'POST':
+		username = request.POST.get('username')
+		if len(username) < 4:
+			error_message = 'Please choose a longer username.'
+		else:
+			try:
+				if original_username != username:
+					request.user.username = username
+					request.user.save()
+				request.session['confirm_message'] = 'Your new username was successfully saved.'
+				return HttpResponseRedirect(_create_absolute_url(request, reverse('profile')))
+			except IntegrityError:
+				request.user.username = original_username
+				error_message = 'That username appears to be in user. Please choose another.'
+
+	return render(request, 'profile.html', {
+		'error_message': error_message,
+		'confirm_message': request.session.pop('confirm_message', None)
+	})
 
 
 @csrf_exempt

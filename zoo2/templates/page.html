@@ -9,7 +9,7 @@
 </head>
 <body>
 	<div id="auth">{% if user.is_authenticated %}
-		<span id="username">{{ user.username }}</span>
+		<a href="{% url 'profile' %}">{{ user.username }}</a>
 		<button id="sign_out">Sign Out</button>
 	{% else %}
 		<button id="gh_sign_in">GitHub Sign In</button>

@@ -5,10 +5,30 @@
 	<span><a href="{% url 'index' %}">Zoo2</a></span>
 	User Profile
 </h1>
-{{ user.pk }}
-{{ user.email }}
-{#% if not user.profile or not user.profile.github_token %#}
+{% if error_message %}
+	<p class="error">{{ error_message }}</p>
+{% endif %}
+{% if confirm_message %}
+	<p class="confirm">{{ confirm_message }}</p>
+{% endif %}
+
+<form action="{% url 'profile' %}" method="post">
+	{% csrf_token %}
+	<table>
+		<tr class="row1{% if error_message %} rowmissing{% endif %}">
+			<td>User Name:</td>
+			<td class="marker"></td>
+			<td><input type="text" name="username" value="{{ user.username }}" /></td>
+		</tr>
+		<tr class="row2">
+			<td colspan="3" align="right">
+				<button type="submit">Save</button>
+			</td>
+		</tr>
+	</table>
+</form>
+
+{% if not user.profile or not user.profile.github_token %}
 	<p><a href="{% url 'github_auth' %}">Click here to register your GitHub account</a></p>
-{#% endif %#}
-{{ user.profile.github_token }}
+{% endif %}
 {% endblock %}
