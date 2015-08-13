@@ -101,6 +101,7 @@ def github_auth(request):
 	if 'code' not in request.GET or 'state' not in request.GET:
 		state = str(uuid.uuid4())
 		request.session['state'] = state
+		request.session['referer'] = request.META.get('HTTP_REFERER')
 		return HttpResponseRedirect(
 			'https://github.com/login/oauth/authorize?' + urlencode({
 				'client_id': os.environ['GITHUB_CLIENT_ID'],
@@ -111,7 +112,7 @@ def github_auth(request):
 
 	code = request.GET['code']
 	state = request.GET['state']
-	if state != request.session['state']:
+	if state != request.session.pop('state'):
 		return HttpResponse('hacking attempt', status=httplib.UNAUTHORIZED)
 
 	token = auth.get_access_token(code, state)['access_token']
@@ -123,7 +124,11 @@ def github_auth(request):
 		user = authenticate(token=token)
 		login(request, user)
 
-	return HttpResponseRedirect(_create_absolute_url(request, '/profile'))
+	go_to = request.session.pop('referer')
+	if go_to is None:
+		go_to = _create_absolute_url(request, '/')
+
+	return HttpResponseRedirect(go_to)
 
 
 # repo_patterns
