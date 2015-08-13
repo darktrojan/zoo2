@@ -6,6 +6,7 @@
 	<span><a href="{% url 'index' %}">Zoo2</a></span>
 	{{ repo.addon_name }}
 </h1>
+{% html_block 'page_alert' %}
 {% for code, t in translated.iteritems %}
 	{% if forloop.first %}
 		<table style="border-collapse: collapse;">

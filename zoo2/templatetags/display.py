@@ -1,5 +1,7 @@
 from django import template
 
+from zoo2.models import HTMLBlock
+
 register = template.Library()
 
 
@@ -11,3 +13,11 @@ def complete(counts):
 		'missing': counts[2],
 		'total': counts[3]
 	}
+
+
+@register.simple_tag
+def html_block(alias):
+	try:
+		return HTMLBlock.objects.get(alias=alias).html
+	except HTMLBlock.DoesNotExist:
+		return ''

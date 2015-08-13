@@ -1,15 +1,15 @@
 {% extends 'page.html' %}
+{% load display %}
 
 {% block 'content' %}
 <h1>
 	Zoo2
 </h1>
+{% html_block 'page_alert' %}
 <div style="display: flex">
 	<div style="width: 800px">
 		<p>Zoo is a means of localizing Mozilla extensions that uses Git and GitHub for file management. There are currently {{ repos.count }} repo{{ repos.count | pluralize }}, and translations in {{ translation_count }} language{{ translation_count | pluralize }}.</p>
-		<p>Here's how it works: your code is on GitHub, Zoo forks it, translators translate it, then Zoo sends you a pull request. You merge the changes into your code and release them. Easy.</p>
-		<p style="text-align: center;"><img src="/static/forkjoin.svg" width="400" /></p>
-		<p>You can file issues on <a href="https://github.com/darktrojan/zoo2/issues">Zoo's GitHub page</a>.</p>
+		{% html_block 'index_content' %}
 	</div>
 
 	<div style="flex: auto">

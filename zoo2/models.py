@@ -273,3 +273,14 @@ class String(models.Model):
 
 	class Meta:
 		unique_together = ('file', 'locale', 'key')
+
+
+class HTMLBlock(models.Model):
+	alias = models.CharField(max_length=32, primary_key=True)
+	html = models.TextField(blank=True)
+
+	def __unicode__(self):
+		return 'HTMLBlock [%s]' % self.alias
+
+	class Meta:
+		verbose_name = 'HTML Block'
