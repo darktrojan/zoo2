@@ -35,7 +35,7 @@ MIDDLEWARE_CLASSES = (
 	'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
-	'django.middleware.security.SecurityMiddleware',
+	'zoo2.middleware.security.SecurityMiddleware',
 )
 
 ROOT_URLCONF = 'zoo2.urls'
