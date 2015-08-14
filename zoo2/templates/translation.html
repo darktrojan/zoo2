@@ -8,9 +8,9 @@
 	{{ locale.name }}
 </h1>
 {% html_block 'page_alert' %}
-<p>Translator: {{ translation.owner.username }}
+<p id="meta">Translator: {{ translation.owner.username }}
 {% if translation.pull_request > 0 %}
-	<a href="https://github.com/{{ repo.full_name }}/pull/{{ translation.pull_request }}">View current pull request</a>
+	<span><a href="https://github.com/{{ repo.full_name }}/pull/{{ translation.pull_request }}">View current pull request</a></span>
 {% endif %}
 </p>
 {% for k, v in counts.iteritems %}
@@ -18,17 +18,14 @@
 		<table>
 	{% endif %}
 	<tr class="{% cycle 'row1' 'row2' %}">
-		<td>
+		<td{% if v.dirty %} class="dirty"{% endif %}>
 			<a href="{% url fileaction repo.full_name locale.code k %}">{{ k }}</a>
-			{% if v.dirty %}
-				*
-			{% endif %}
 		</td>
 		<td width="400">{% complete v.counts %}</td>
 	</tr>
 	{% if forloop.last %}
 		</table>
-		<p class="small">* File with unsaved changes.</p>
+		<p class="small">&#x2020; File with unsaved changes.</p>
 	{% endif %}
 {% endfor %}
 

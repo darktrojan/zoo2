@@ -27,8 +27,12 @@ a {
 	text-decoration: none;
 }
 h1 > span:after {
-	content: ' \22B3';
+	content: '\A0\22B3';
 	font-weight: 100;
+}
+#meta > span:before {
+	content: '\279A\A0';
+	margin-left: 1em;
 }
 
 #stickyactions {
@@ -90,6 +94,9 @@ table {
 }
 table td {
 	padding: 4px 8px;
+}
+td.dirty:after {
+	content: ' \2020';
 }
 table#translation_strings tr.note td {
 	background-color: #eef;

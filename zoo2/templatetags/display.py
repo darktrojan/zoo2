@@ -9,8 +9,11 @@ register = template.Library()
 def complete(counts):
 	return {
 		'translated': counts[0],
+		'translated_width': float(counts[0]) * 100 / counts[3],
 		'duplicate': counts[1],
+		'duplicate_width': float(counts[1]) * 100 / counts[3],
 		'missing': counts[2],
+		'missing_width': float(counts[2]) * 100 / counts[3],
 		'total': counts[3]
 	}
 

@@ -4,6 +4,9 @@ copyMissingButton.addEventListener('click', copyMissing);
 
 var stringsTable = document.getElementById('translation_strings');
 stringsTable.addEventListener('change', function(event) {
+	var value = event.target.value;
+	value = value.trim().replace(/\.{3,}/g, '\u2026');
+	event.target.value = value;
 	checkStrings(event.target);
 	updateCounts();
 });

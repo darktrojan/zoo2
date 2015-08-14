@@ -7,11 +7,11 @@
 	{{ repo.addon_name }}
 </h1>
 {% html_block 'page_alert' %}
-<p>
+<p id="meta">
 	Owner: {{ repo.owner.username }}
-	<a href="https://github.com/{{ repo.full_name }}">View on GitHub</a>
+	<span><a href="https://github.com/{{ repo.full_name }}">View on GitHub</a></span>
 	{% if repo.amo_stub %}
-		<a href="https://addons.mozilla.org/addon/{{ repo.amo_stub }}">View on addons.mozilla.org</a>
+		<span><a href="https://addons.mozilla.org/addon/{{ repo.amo_stub }}">View on addons.mozilla.org</a></span>
 	{% endif %}
 </p>
 {% for code, t in translated.iteritems %}
@@ -19,17 +19,14 @@
 		<table style="border-collapse: collapse;">
 	{% endif %}
 	<tr class="{% cycle 'row1' 'row2' %}">
-		<td>
+		<td{% if t.dirty %} class="dirty"{% endif %}>
 			<a href="{% url 'translation' t.repo.full_name code %}">{{ t.locale.name }}</a>
-			{% if t.dirty %}
-				*
-			{% endif %}
 		</td>
 		<td width="400">{% complete t.get_complete_counts %}</td>
 	</tr>
 	{% if forloop.last %}
 		</table>
-		<p class="small">* Translation with unsaved changes.</p>
+		<p class="small">&#x2020; Translation with unsaved changes.</p>
 	{% endif %}
 {% endfor %}
 
@@ -41,7 +38,7 @@
 			<option value=""></option>{% for l in locales %}
 			{% if l.code != 'en-US' and l.code not in translated %}
 				{% if l.code in repo.translations_list_set %}
-					<option value="{{ l.code }}">{{ l.name }} *</option>
+					<option value="{{ l.code }}">{{ l.name }} &#x2021;</option>
 				{% else %}
 					<option value="{{ l.code }}">{{ l.name }}</option>
 				{% endif %}
@@ -49,7 +46,7 @@
 		{% endfor %}</select>
 		<button type="submit">Create</button>
 		<br />
-		<span class="small">* An existing translation, which will be fetched from GitHub when first used. This might take a few seconds.</span></p>
+		<span class="small">&#x2021; An existing translation, which will be fetched from GitHub when first used. This might take a few seconds.</span></p>
 	</form>
 {% endif %}
 {% endblock %}
