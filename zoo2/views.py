@@ -29,7 +29,7 @@ def _create_absolute_url(request, path):
 
 def index(request):
 	user_translations = []
-	if request.user.pk is not None:
+	if request.user.is_authenticated():
 		user_translations = request.user.translation_set.all().order_by(
 			'repo__addon_name', 'locale__name'
 		)
@@ -80,7 +80,7 @@ def hook(request):
 
 
 def profile(request):
-	if request.user.pk is None:
+	if not request.user.is_authenticated():
 		return HttpResponseRedirect(_create_absolute_url(request, '/'))
 
 	original_username = request.user.username
@@ -140,7 +140,7 @@ def github_auth(request):
 
 	token = auth.get_access_token(code, state)['access_token']
 
-	if request.user.pk is not None:
+	if request.user.is_authenticated():
 		# TODO what if this GitHub user is linked to a different account here?
 		auth.save_to_profile(request.user, token)
 	else:

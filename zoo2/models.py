@@ -83,7 +83,7 @@ class Translation(models.Model):
 	def is_owner(self, user):
 		if user is None:
 			return False
-		return self.owner.pk == user.pk or self.repo.owner.pk == user.pk
+		return self.owner == user or self.repo.owner == user
 
 	def save_to_github(self):
 		if self.head_commit == '':
