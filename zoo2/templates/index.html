@@ -23,10 +23,11 @@
 		{% for t in user_translations %}
 			{% if forloop.first %}
 				<h3>Your translations</h3>
-				<ul style="padding: 0; list-style-position: inside">
+				<ul style="padding: 0; list-style: none">
 			{% endif %}
 			<li>
 				<a href="{% url 'translation' t.repo.full_name t.locale.code %}">{{ t.repo.addon_name }} &ndash; {{ t.locale.name }}</a>
+				<div style="max-width: 250px">{% complete t.get_complete_counts %}</div>
 			</li>
 			{% if forloop.last %}
 				</ul>
