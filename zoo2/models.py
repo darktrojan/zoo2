@@ -35,6 +35,7 @@ class Repo(models.Model):
 	head_commit = models.CharField(max_length=40)
 	owner = models.ForeignKey(User)
 	amo_stub = models.CharField(max_length=32, blank=True, verbose_name='AMO stub')
+	readme = models.TextField(blank=True, verbose_name='ReadMe Markdown')
 
 	def __unicode__(self):
 		return self.full_name

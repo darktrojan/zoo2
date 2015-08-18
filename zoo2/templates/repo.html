@@ -1,5 +1,6 @@
 {% extends 'page.html' %}
 {% load display %}
+{% load django_markdown %}
 
 {% block 'title' %}{{ repo.addon_name }} &ndash; Zoo2{% endblock %}
 
@@ -16,6 +17,9 @@
 		<span><a href="https://addons.mozilla.org/addon/{{ repo.amo_stub }}">View on addons.mozilla.org</a></span>
 	{% endif %}
 </p>
+{% if repo.readme %}
+	<blockquote id="readme">{{ repo.readme | markdown_safe }}</blockquote>
+{% endif %}
 {% for code, t in translated.iteritems %}
 	{% if forloop.first %}
 		<table style="border-collapse: collapse;">

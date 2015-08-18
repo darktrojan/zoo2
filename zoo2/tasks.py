@@ -42,6 +42,8 @@ def create_repo(full_name, branch, owner_pk):
 	token = owner.profile.github_token
 	api.add_webhook(repo.full_name, token)
 
+	download_readme.delay(repo.pk, head_commit)
+
 	for f in repo.file_set.all():
 		if f.path == 'install.rdf':
 			download_install_rdf.delay(repo.pk, head_commit)
@@ -86,6 +88,9 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 		parser = ChromeManifestParser(manifest)
 		repo.translations_list_set = parser.existing
 		repo.save(update_fields=['translations_list'])
+
+	if 'zoo.md' in changed_files:
+		download_readme.delay(repo.pk, head_commit)
 
 	if file_list_changed:
 		existing_files = [f.path for f in repo.file_set.all()]
@@ -161,6 +166,14 @@ def download_install_rdf(repo_pk, head_commit):
 				string.save()
 		except Locale.DoesNotExist:
 			pass
+
+
+@app.task
+def download_readme(repo_pk, head_commit):
+	repo = Repo.objects.get(pk=repo_pk)
+	file = raw.get_raw_file(repo.full_name, head_commit, 'zoo.md')
+	repo.readme = file if file is not None else ''
+	repo.save(update_fields=['readme'])
 
 
 @app.task

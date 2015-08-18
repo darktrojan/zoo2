@@ -35,6 +35,18 @@ h1 > span:after {
 	margin-left: 1em;
 }
 
+blockquote {
+	margin: 1em 0px;
+	padding: 0.5em;
+	background-color: #f0f0f0;
+}
+blockquote > :first-child {
+	margin-top: 0;
+}
+blockquote > :last-child {
+	margin-bottom: 0;
+}
+
 #stickyactions {
 	position: sticky;
 	top: 8px;
