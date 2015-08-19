@@ -4,8 +4,9 @@ import os
 import re
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'zoo2.settings')
 
-from celery import Celery
+from celery import Celery, group
 from django.contrib.auth.models import User
+from django.db.models import F
 
 from github import api, raw
 from mozilla.chrome_manifest import ChromeManifestParser
@@ -14,7 +15,6 @@ from zoo2.models import *
 
 app = Celery('zoo2', broker='django://')
 app.config_from_object('django.conf:settings')
-# app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 
 @app.task
@@ -133,12 +133,18 @@ def update_fork(repo_pk, head_commit):
 @app.task
 def download_translation(translation_pk):
 	t = Translation.objects.get(pk=translation_pk)
+	signatures = []
 	for f in t.repo.file_set.all():
 		if f.path == 'install.rdf':
-			download_install_rdf.delay(t.repo.pk, t.repo.head_commit)
 			continue
 
-		download_file.delay(f.pk, t.locale.code, t.repo.head_commit)
+		signatures.append(
+			download_file.s(f.pk, t.locale.code, t.repo.head_commit, mark_translation=translation_pk)
+		)
+
+	t.busy = len(signatures)
+	t.save(update_fields=['busy'])
+	group(signatures).delay()
 
 
 @app.task
@@ -177,10 +183,13 @@ def download_readme(repo_pk, head_commit):
 
 
 @app.task
-def download_file(file_pk, locale_code, head_commit):
+def download_file(file_pk, locale_code, head_commit, mark_translation=None):
 	f = File.objects.get(pk=file_pk)
 	l = Locale.objects.get(code=locale_code)
 	f.download_from_source(l, head_commit)
+
+	if mark_translation is not None:
+		Translation.objects.filter(pk=mark_translation).update(busy=F('busy') - 1)
 
 
 @app.task

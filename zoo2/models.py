@@ -72,6 +72,7 @@ class Translation(models.Model):
 	head_commit = models.CharField(max_length=40, blank=True)
 	pull_request = models.IntegerField(default=0)
 	dirty = models.BooleanField(default=False)
+	busy = models.IntegerField(default=0)
 	owner = models.ForeignKey(User)
 
 	def __unicode__(self):
@@ -219,6 +220,9 @@ class File(models.Model):
 
 	def download_from_source(self, locale, head_commit):
 		f = raw.get_raw_file(self.repo.full_name, head_commit, self.get_full_path(locale))
+
+		if f is None:
+			return
 
 		if locale.code == 'en-US':
 			self.string_set.filter(locale=locale).delete()

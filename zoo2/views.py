@@ -177,7 +177,9 @@ def new(request, full_name):
 	try:
 		translation.save()
 		if code in repo.translations_list_set:
-			# TODO please wait while this happens
+			# pretend to be busy until we're actually busy
+			translation.busy = 1
+			translation.save(update_fields=['busy'])
 			tasks.download_translation.delay(translation.pk)
 	except IntegrityError:
 		return HttpResponse('oops')

@@ -14,6 +14,9 @@
 {% if translation.pull_request > 0 %}
 	<span><a href="https://github.com/{{ repo.full_name }}/pull/{{ translation.pull_request }}">View current pull request</a></span>
 {% endif %}
+{% if translation.busy > 0 %}
+    <p class="confirm">Zoo is busy downloading the files. Please wait a moment, then refresh the page.</p>
+{% endif %}
 </p>
 {% for k, v in counts.iteritems %}
 	{% if forloop.first %}
