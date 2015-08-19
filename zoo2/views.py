@@ -246,6 +246,7 @@ def file(request, full_name, code, path, fileaction):
 		})
 
 	return render(request, 'file.html', {
+		'translation': translation,
 		'repo': repo,
 		'locale': locale,
 		'file': file,

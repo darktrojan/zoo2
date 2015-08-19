@@ -4,6 +4,7 @@ import os.path
 from xml.sax.saxutils import escape
 
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from django.db import models
 
 from github import api, raw
@@ -39,6 +40,9 @@ class Repo(models.Model):
 
 	def __unicode__(self):
 		return self.full_name
+
+	def get_absolute_url(self):
+		return reverse('repo', args=[self.full_name])
 
 	def _get_fork_name(self):
 		return os.path.join('darktrojan-test', self.full_name.split('/', 2)[1])
@@ -77,6 +81,9 @@ class Translation(models.Model):
 
 	def __unicode__(self):
 		return '%s [%s]' % (self.repo.full_name, self.branch_name)
+
+	def get_absolute_url(self):
+		return reverse('translation', args=[self.repo.full_name, self.locale.code])
 
 	def _get_branch_name(self):
 		return 'zoo2_%s' % self.locale.code

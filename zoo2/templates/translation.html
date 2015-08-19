@@ -6,7 +6,7 @@
 {% block 'content' %}
 <h1>
 	<span><a href="{% url 'index' %}">Zoo2</a></span>
-	<span><a href="{% url 'repo' repo.full_name %}">{{ repo.addon_name }}</a></span>
+	<span><a href="{{ repo.get_absolute_url }}">{{ repo.addon_name }}</a></span>
 	{{ locale.name }}
 </h1>
 {% html_block 'page_alert' %}

@@ -26,7 +26,7 @@
 	{% endif %}
 	<tr class="{% cycle 'row1' 'row2' %}">
 		<td{% if t.dirty %} class="dirty"{% endif %}>
-			<a href="{% url 'translation' t.repo.full_name code %}">{{ t.locale.name }}</a>
+			<a href="{{ t.get_absolute_url }}">{{ t.locale.name }}</a>
 		</td>
 		<td width="400">{% complete t.get_complete_counts %}</td>
 	</tr>

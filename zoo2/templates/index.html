@@ -16,7 +16,7 @@
 		<h2>Repos</h2>
 		<ul style="padding: 0; list-style-position: inside">{% for r in repos %}
 			<li>
-				<a href="{% url 'repo' r.full_name %}">{{ r.addon_name }}</a>
+				<a href="{{ r.get_absolute_url }}">{{ r.addon_name }}</a>
 			</li>
 		{% endfor %}</ul>
 
@@ -26,7 +26,7 @@
 				<ul style="padding: 0; list-style: none">
 			{% endif %}
 			<li>
-				<a href="{% url 'translation' t.repo.full_name t.locale.code %}">{{ t.repo.addon_name }} &ndash; {{ t.locale.name }}</a>
+				<a href="{{ t.get_absolute_url }}">{{ t.repo.addon_name }} &ndash; {{ t.locale.name }}</a>
 				<div style="max-width: 250px">{% complete t.get_complete_counts %}</div>
 			</li>
 			{% if forloop.last %}
