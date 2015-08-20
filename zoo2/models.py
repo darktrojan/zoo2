@@ -1,11 +1,14 @@
 from __future__ import absolute_import
 
 import os.path
+from urllib import urlencode
 from xml.sax.saxutils import escape
 
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.db import models
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 from github import api, raw
 from mozilla.chrome_manifest import ChromeManifestParser
@@ -280,12 +283,31 @@ class String(models.Model):
 	pre = models.CharField(max_length=255, blank=True)
 	post = models.CharField(max_length=255, blank=True)
 	dirty = models.BooleanField(default=False)
+	example_data = models.CharField(max_length=255, blank=True)
 
 	def __unicode__(self):
 		return '%s [%s]' % (self.key, self.locale.code)
 
 	class Meta:
 		unique_together = ('file', 'locale', 'key')
+
+
+@receiver(pre_save, sender=String)
+def read_notes(sender, instance, update_fields, **kwargs):
+	if instance.locale.code != 'en-US':
+		return
+
+	if update_fields is not None and 'pre' not in update_fields:
+		return
+
+	# If update_fields contains pre but not example_data, this will break.
+	# Fortunately this never happens.
+
+	example_data = []
+	for line in instance.pre.splitlines():
+		if line.startswith('# @example '):
+			example_data.append(line[11:].split(None, 1))
+	instance.example_data = urlencode(dict(example_data))
 
 
 class HTMLBlock(models.Model):

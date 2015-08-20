@@ -230,9 +230,15 @@ def file(request, full_name, code, path, fileaction):
 	strings = list()
 	for s in string_set:
 		dirty = False
-		s.pre = s.pre.strip()
-		s.pre = re.sub('^(#|<!--)\s*', '', s.pre)
-		s.pre = re.sub('\s*-->\s*$', '', s.pre)
+		pre = []
+		for line in s.pre.splitlines():
+			line = line.strip()
+			line = re.sub('^(#|<!--)\s*', '', line)
+			if line.startswith('@example'):
+				continue
+			line = re.sub('\s*-->$', '', line)
+			pre.append(line)
+		s.pre = '\n'.join(pre)
 		try:
 			ts = file.string_set.get(locale=locale, key=s.key)
 			t = ts.value

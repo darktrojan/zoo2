@@ -40,7 +40,7 @@
 			<td class="base">{{ s.base.value }}</td>
 		</tr>
 		<tr class="{{ rowclass }}">
-			<td class="value">
+			<td class="value" data-example_data="{{ s.base.example_data }}">
 				{% if fileaction == 'edit' %}
 				<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
 				{% else %}
@@ -49,6 +49,8 @@
 			</td>
 		</tr>
 	{% endfor %}</table>
+	<p class="small">&#x2020; String that has been changed.</p>
+
 {% if fileaction == 'edit' %}
 </form>
 <script src="/static/file.js" type="text/javascript"></script>

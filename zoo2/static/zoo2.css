@@ -113,6 +113,7 @@ td.dirty:after {
 table#translation_strings tr.note td {
 	background-color: #eef;
 	font-size: 0.75em;
+	white-space: pre-line;
 }
 table#translation_strings td.key {
 	width: 250px;
@@ -137,4 +138,7 @@ table#translation_strings td.value {
 table#translation_strings td.value input {
 	width: 100%;
 	box-sizing: border-box;
+}
+table#translation_strings td.value div.example {
+	font-size: 0.75em;
 }
