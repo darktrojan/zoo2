@@ -1,4 +1,4 @@
-from chrome_manifest import ChromeManifestParser
+from ..chrome_manifest import ChromeManifestParser
 from django.test import TestCase
 
 initial_manifest = '''

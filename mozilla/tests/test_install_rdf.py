@@ -1,5 +1,5 @@
 import os.path
-from install_rdf import InstallRDFParser
+from ..install_rdf import InstallRDFParser
 from django.test import TestCase
 
 
