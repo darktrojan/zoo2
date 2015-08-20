@@ -237,9 +237,12 @@ class File(models.Model):
 		if locale.code == 'en-US':
 			self.string_set.filter(locale=locale).delete()
 
-		dtd = getParser(self.path)
-		dtd.readContents(f)
-		for e in dtd:
+		self.parse(f, locale)
+
+	def parse(self, content, locale):
+		parser = getParser(self.path)
+		parser.readContents(content)
+		for e in parser:
 			try:
 				s = self.string_set.get(locale=locale, key=e.key)
 				# TODO decide what to do if s.dirty == True
