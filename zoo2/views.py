@@ -233,6 +233,7 @@ def file(request, full_name, code, path, fileaction):
 		pre = []
 		example_data = []
 		pluralrule = False
+		plurals = None
 		for line in s.pre.splitlines():
 			line = line.strip()
 			line = re.sub('^(#|<!--)\s*', '', line)
@@ -241,6 +242,9 @@ def file(request, full_name, code, path, fileaction):
 				continue
 			if line.startswith('@pluralrule'):
 				pluralrule = True
+				continue
+			if line.startswith('@plurals '):
+				plurals = line[9:]
 				continue
 			line = re.sub('\s*-->$', '', line)
 			pre.append(line)
@@ -254,6 +258,7 @@ def file(request, full_name, code, path, fileaction):
 			'pre': '\n'.join(pre),
 			'example_data': urlencode(dict(example_data)),
 			'pluralrule': pluralrule,
+			'plurals': plurals,
 			'base': s,
 			'translated': t,
 			'dirty': dirty

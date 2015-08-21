@@ -142,3 +142,22 @@ table#translation_strings td.value input {
 table#translation_strings td.value div.example {
 	font-size: 0.75em;
 }
+table#translation_strings td.value div.plural_list {
+	display: flex;
+	margin: 2px 0;
+}
+table#translation_strings td.value div.plural_list > label {
+	width: 100px;
+	font-size: 10.5px;
+	padding-top: 3.5px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+}
+table#translation_strings td.value div.plural_list > input {
+	flex: auto;
+	width: auto;
+}
+table#translation_strings td.value div.plural_list + div.example {
+	margin: -2px 0 0 100px;
+}
