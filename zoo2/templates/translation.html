@@ -17,6 +17,9 @@
 {% if translation.busy > 0 %}
     <p class="confirm">Zoo is busy downloading the files. Please wait a moment, then refresh the page.</p>
 {% endif %}
+{% if confirm_message %}
+	<p class="confirm">{{ confirm_message }}</p>
+{% endif %}
 </p>
 {% for k, v in counts.iteritems %}
 	{% if forloop.first %}

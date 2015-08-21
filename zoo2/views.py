@@ -185,7 +185,7 @@ def new(request, full_name):
 		return HttpResponse('oops')
 
 	return HttpResponseRedirect(
-		_create_absolute_url(request, reverse('translation', args=(full_name, code)))
+		_create_absolute_url(request, translation.get_absolute_url())
 	)
 
 
@@ -209,7 +209,8 @@ def translation(request, full_name, code):
 		'translation': translation,
 		'counts': counts,
 		'is_owner': is_owner,
-		'fileaction': 'edit' if is_owner else 'view'
+		'fileaction': 'edit' if is_owner else 'view',
+		'confirm_message': request.session.pop('confirm_message', None)
 	})
 
 
@@ -307,7 +308,7 @@ def save(request, full_name, code, path):
 			translation.save(update_fields=['dirty'])
 
 	return HttpResponseRedirect(
-		_create_absolute_url(request, reverse('translation', args=(full_name, code)))
+		_create_absolute_url(request, translation.get_absolute_url())
 	)
 
 
@@ -319,4 +320,5 @@ def push(request, full_name, code):
 
 	tasks.save_translation.delay(translation.pk)
 
-	return HttpResponse('ok pushing it', status=httplib.CREATED)
+	request.session['confirm_message'] = 'Pull request created.'
+	return HttpResponseRedirect(_create_absolute_url(request, translation.get_absolute_url()))
