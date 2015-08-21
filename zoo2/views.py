@@ -231,14 +231,15 @@ def file(request, full_name, code, path, fileaction):
 	for s in string_set:
 		dirty = False
 		pre = []
+		example_data = []
 		for line in s.pre.splitlines():
 			line = line.strip()
 			line = re.sub('^(#|<!--)\s*', '', line)
-			if line.startswith('@example'):
+			if line.startswith('@example '):
+				example_data.append(line[9:].split(None, 1))
 				continue
 			line = re.sub('\s*-->$', '', line)
 			pre.append(line)
-		s.pre = '\n'.join(pre)
 		try:
 			ts = file.string_set.get(locale=locale, key=s.key)
 			t = ts.value
@@ -246,6 +247,8 @@ def file(request, full_name, code, path, fileaction):
 		except String.DoesNotExist:
 			t = ''
 		strings.append({
+			'pre': '\n'.join(pre),
+			'example_data': urlencode(dict(example_data)),
 			'base': s,
 			'translated': t,
 			'dirty': dirty

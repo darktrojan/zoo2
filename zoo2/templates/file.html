@@ -27,11 +27,11 @@
 	</div>
 {% endif %}
 	<table id="translation_strings">{% for s in strings %}
-		{% if s.base.pre != '' %}
+		{% if s.pre != '' %}
 		<tr class="note">
 			<td></td>
 			<td class="marker"></td>
-			<td>{{ s.base.pre }}</td>
+			<td>{{ s.pre }}</td>
 		</tr>
 		{% endif %}
 		<tr class="{% cycle 'row1' 'row2' as rowclass %}">
@@ -40,7 +40,7 @@
 			<td class="base">{{ s.base.value }}</td>
 		</tr>
 		<tr class="{{ rowclass }}">
-			<td class="value" data-example_data="{{ s.base.example_data }}">
+			<td class="value" data-example-data="{{ s.example_data }}">
 				{% if fileaction == 'edit' %}
 				<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
 				{% else %}

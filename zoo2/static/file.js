@@ -102,8 +102,8 @@ function copyMissing() {
 
 function showExample(input) {
 	var cell = input.parentNode;
-	var example_data = cell.dataset.example_data
-	if (!example_data) {
+	var exampleData = cell.dataset.exampleData
+	if (!exampleData) {
 		return;
 	}
 
@@ -114,7 +114,7 @@ function showExample(input) {
 		cell.appendChild(example);
 	}
 	var value = input.value;
-	example_data.split('&').forEach(function(part) {
+	exampleData.split('&').forEach(function(part) {
 		var parts = part.split('=', 2);
 		var search = decodeURIComponent(parts[0]).trim();
 		var replacement = decodeURIComponent(parts[1]).trim().replace(/\+/g, ' ');
