@@ -29,6 +29,11 @@ class FileAdmin(admin.ModelAdmin):
 	list_display = ('repo', 'path', 'string_count')
 
 
+class StringAdmin(admin.ModelAdmin):
+	list_display = ('file', 'locale', 'key', 'value')
+	list_filter = ('file', 'locale')
+
+
 class UserProfileInline(admin.StackedInline):
 	model = UserProfile
 	can_delete = False
@@ -44,5 +49,5 @@ admin.site.register(Locale, LocaleAdmin)
 admin.site.register(Repo, RepoAdmin)
 admin.site.register(Translation, TranslationAdmin)
 admin.site.register(File, FileAdmin)
-admin.site.register(String)
+admin.site.register(String, StringAdmin)
 admin.site.register(HTMLBlock)

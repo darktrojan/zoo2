@@ -20,6 +20,7 @@ var inputs = document.querySelectorAll('table#translation_strings input[type="te
 for (var i = 0; i < inputs.length; i++) {
 	checkStrings(inputs[i]);
 	showExample(inputs[i]);
+	setupPluralUI(inputs[i]);
 }
 updateCounts();
 
@@ -102,7 +103,7 @@ function copyMissing() {
 
 function showExample(input) {
 	var cell = input.parentNode;
-	var exampleData = cell.dataset.exampleData
+	var exampleData = cell.dataset.exampleData;
 	if (!exampleData) {
 		return;
 	}
@@ -123,4 +124,31 @@ function showExample(input) {
 		}
 	});
 	example.textContent = 'Example: ' + value;
+}
+
+function setupPluralUI(input) {
+	var cell = input.parentNode;
+	var pluralRule = cell.dataset.pluralRule;
+	if (pluralRule != 'true') {
+		return;
+	}
+
+	input.type = 'hidden';
+	var select = document.createElement('select');
+	for (var i = 0; i <= 16; i++) {
+		var option = document.createElement('option');
+		option.label = option.textContent = i;
+		select.appendChild(option);
+	}
+	select.value = input.value;
+	cell.appendChild(select);
+
+	cell.appendChild(document.createTextNode('\u00A0'));
+
+	var anchor = document.createElement('a');
+	anchor.classList.add('small');
+	anchor.href = 'https://developer.mozilla.org/docs/Mozilla/Localization/Localization_and_Plurals';
+	anchor.target = '_new';
+	anchor.textContent = 'Help with this';
+	cell.appendChild(anchor);
 }

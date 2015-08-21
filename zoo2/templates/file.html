@@ -40,7 +40,7 @@
 			<td class="base">{{ s.base.value }}</td>
 		</tr>
 		<tr class="{{ rowclass }}">
-			<td class="value" data-example-data="{{ s.example_data }}">
+			<td class="value" data-example-data="{{ s.example_data }}"{% if s.pluralrule %} data-plural-rule="true"{% endif %}>
 				{% if fileaction == 'edit' %}
 				<input type="text" name="locale_strings[{{ s.base.key }}]" value="{{ s.translated }}" />
 				{% else %}

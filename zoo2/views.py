@@ -232,11 +232,15 @@ def file(request, full_name, code, path, fileaction):
 		dirty = False
 		pre = []
 		example_data = []
+		pluralrule = False
 		for line in s.pre.splitlines():
 			line = line.strip()
 			line = re.sub('^(#|<!--)\s*', '', line)
 			if line.startswith('@example '):
 				example_data.append(line[9:].split(None, 1))
+				continue
+			if line.startswith('@pluralrule'):
+				pluralrule = True
 				continue
 			line = re.sub('\s*-->$', '', line)
 			pre.append(line)
@@ -249,6 +253,7 @@ def file(request, full_name, code, path, fileaction):
 		strings.append({
 			'pre': '\n'.join(pre),
 			'example_data': urlencode(dict(example_data)),
+			'pluralrule': pluralrule,
 			'base': s,
 			'translated': t,
 			'dirty': dirty
