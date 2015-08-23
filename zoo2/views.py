@@ -136,7 +136,7 @@ def github_auth(request):
 	code = request.GET['code']
 	state = request.GET['state']
 	if state != request.session.pop('state'):
-		return HttpResponse('hacking attempt', status=httplib.UNAUTHORIZED)
+		return HttpResponse(status=httplib.UNAUTHORIZED)
 
 	token = auth.get_access_token(code, state)['access_token']
 
@@ -182,7 +182,8 @@ def new(request, full_name):
 			translation.save(update_fields=['busy'])
 			tasks.download_translation.delay(translation.pk)
 	except IntegrityError:
-		return HttpResponse('oops')
+		# TODO
+		return HttpResponse(status=httplib.INTERNAL_SERVER_ERROR)
 
 	return HttpResponseRedirect(
 		_create_absolute_url(request, translation.get_absolute_url())
@@ -283,7 +284,7 @@ def save(request, full_name, code, path):
 	translation = get_object_or_404(Translation, repo=repo, locale=locale)
 
 	if not translation.is_owner(request.user):
-		return HttpResponse('sod off', status=httplib.UNAUTHORIZED)
+		return HttpResponse(status=httplib.UNAUTHORIZED)
 
 	file = get_object_or_404(File, repo=repo, path=path)
 	strings = file.string_set.filter(locale=Locale.objects.get(code='en-US'))
@@ -317,6 +318,9 @@ def push(request, full_name, code):
 	repo = get_object_or_404(Repo, full_name=full_name)
 	locale = get_object_or_404(Locale, code=code)
 	translation = get_object_or_404(Translation, repo=repo, locale=locale)
+
+	if not translation.is_owner(request.user):
+		return HttpResponse(status=httplib.UNAUTHORIZED)
 
 	tasks.save_translation.delay(translation.pk)
 
