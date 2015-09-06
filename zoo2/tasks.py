@@ -76,8 +76,7 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 			changed_files.append(f)
 
 	changed_files = frozenset(changed_files)
-	print 'These files have changed:'
-	print changed_files
+	print 'These files have changed: %s' % ', '.join(changed_files)
 
 	if 'install.rdf' in changed_files:
 		download_install_rdf.delay(repo.pk, head_commit)
@@ -195,12 +194,10 @@ def download_file(file_pk, locale_code, head_commit, mark_translation=None):
 @app.task
 def save_translation(translation_pk):
 	t = Translation.objects.get(pk=translation_pk)
-	print 'Saving to GitHub'
 	t.save_to_github()
-	print 'Creating pull request'
 	original = t.pull_request
 	t.create_pull_request()
 	if t.pull_request == original:
-		print 'Already had a pull request'
+		print 'Already had a pull request: %d' % t.pull_request
 	else:
 		print 'New pull request: %d' % t.pull_request

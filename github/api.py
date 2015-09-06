@@ -141,14 +141,14 @@ def update_head_commit_sha(repo, branch, commit_sha, force=False):
 			'sha': commit_sha,
 			'force': force
 		}
-		print _do_thing('PATCH', path, body)
+		return _do_thing('PATCH', path, body)
 	else:
 		path = os.path.join('/repos', repo, 'git/refs')
 		body = {
 			'ref': os.path.join('refs/heads', branch),
 			'sha': commit_sha
 		}
-		print _do_thing('POST', path, body)
+		return _do_thing('POST', path, body)
 
 
 def create_pull_request(repo, head, base, title, token=None):

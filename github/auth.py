@@ -40,7 +40,6 @@ def get_access_token(code, state):
 		'code': code,
 		'state': state
 	}
-	print body
 	return _do_thing('POST', '/login/oauth/access_token', body)
 
 
