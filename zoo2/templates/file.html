@@ -27,14 +27,14 @@
 	</div>
 {% endif %}
 	<table id="translation_strings">{% for s in strings %}
+		<tr class="{% cycle 'row1' 'row2' as rowclass %}">
 		{% if s.pre != '' %}
-		<tr class="note">
 			<td></td>
 			<td class="marker"></td>
-			<td>{{ s.pre }}</td>
+			<td class="note">{{ s.pre }}</td>
 		</tr>
+		<tr class="{{ rowclass }}">
 		{% endif %}
-		<tr class="{% cycle 'row1' 'row2' as rowclass %}">
 			<td class="key{% if s.dirty %} dirty{% endif %}" rowspan="2">{{ s.base.key }}</td>
 			<td class="marker" rowspan="2"></td>
 			<td class="base">{{ s.base.value }}</td>

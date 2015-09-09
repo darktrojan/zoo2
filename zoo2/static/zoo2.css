@@ -110,10 +110,10 @@ table td {
 td.dirty:after {
 	content: ' \2020';
 }
-table#translation_strings tr.note td {
-	background-color: #eef;
+table#translation_strings tr td.note {
 	font-size: 0.75em;
 	white-space: pre-line;
+	padding-bottom: 0;
 }
 table#translation_strings td.key {
 	width: 250px;

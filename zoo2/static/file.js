@@ -96,25 +96,42 @@ function checkStrings(element) {
 	var valueRow = keyRow.nextElementSibling;
 	var value = valueRow.querySelector('input[type="text"], select');
 
+	var noteRow = keyRow.previousElementSibling;
+	if (noteRow && !noteRow.querySelector('td.note')) {
+		noteRow = null;
+	}
+
 	if (value.value.trim() === '') {
 		keyRow.classList.add('rowmissing');
+		if (noteRow) {
+			noteRow.classList.add('rowmissing');
+		}
 		copyMissingButton.hidden = false;
 	} else {
 		keyRow.classList.remove('rowmissing');
+		if (noteRow) {
+			noteRow.classList.remove('rowmissing');
+		}
 		copyMissingButton.hidden = !document.querySelector('.rowmissing');
 
 		if (value.value == base.textContent) {
 			keyRow.classList.add('rowduplicate');
+			if (noteRow) {
+				noteRow.classList.add('rowduplicate');
+			}
 		} else {
 			keyRow.classList.remove('rowduplicate');
+			if (noteRow) {
+				noteRow.classList.remove('rowduplicate');
+			}
 		}
 	}
 }
 
 function updateCounts() {
 	var total = stringsTable.querySelectorAll('td.value').length;
-	var duplicate = document.querySelectorAll('.rowduplicate').length;
-	var missing = document.querySelectorAll('.rowmissing').length;
+	var duplicate = stringsTable.querySelectorAll('tr.rowduplicate > td.base').length;
+	var missing = stringsTable.querySelectorAll('tr.rowmissing > td.base').length;
 	var translated = total - duplicate - missing;
 
 	document.querySelector('#status > .translated').style.width = (translated / total * 200) + 'px';
@@ -151,10 +168,19 @@ function copyMissing() {
 			var keyRow = valueRow.previousElementSibling;
 			var base = keyRow.querySelector('td.base');
 
+			var noteRow = keyRow.previousElementSibling;
+			if (noteRow && !noteRow.querySelector('td.note')) {
+				noteRow = null;
+			}
+
 			value.value = base.textContent;
 			showExample(value);
 			keyRow.classList.remove('rowmissing');
 			keyRow.classList.add('rowduplicate');
+			if (noteRow) {
+				noteRow.classList.remove('rowmissing');
+				noteRow.classList.add('rowduplicate');
+			}
 
 			updatePluralsUICell(value);
 		}

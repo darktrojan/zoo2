@@ -257,7 +257,7 @@ def file(request, full_name, code, path, fileaction):
 		except String.DoesNotExist:
 			t = ''
 		strings.append({
-			'pre': '\n'.join(pre),
+			'pre': '\n'.join(pre).strip(),
 			'example_data': urlencode(dict(example_data)),
 			'pluralrule': pluralrule,
 			'plurals': plurals,
