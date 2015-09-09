@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from xml.dom.minidom import parse, parseString
 
 
@@ -12,7 +13,7 @@ class InstallRDFParser(object):
 		first_whitespace = self.dom.documentElement.firstChild.data
 		self.indentation = first_whitespace.lstrip('\n')
 
-		self.translations = dict()
+		self.translations = OrderedDict()
 
 		locale = 'en-US'
 		name = self.dom.getElementsByTagName('em:name')[0].firstChild.data.strip()
