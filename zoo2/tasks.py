@@ -78,7 +78,7 @@ def update_repo_from_upstream(repo_pk, head_commit, commits_data):
 	changed_files = frozenset(changed_files)
 	print 'These files have changed: %s' % ', '.join(changed_files)
 
-	commits = [c.id for c in commits_data]
+	commits = [c['id'] for c in commits_data]
 	print 'Changesets: %s' % ', '.join(commits)
 	repo.translation_set.filter(head_commit__in=commits).update(head_commit=head_commit)
 

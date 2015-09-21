@@ -116,7 +116,9 @@ class Translation(models.Model):
 			content = f.reconstruct(self.locale)
 			files[path] = content
 
+		message = 'Update %s translation' % self.locale.name
 		if self.locale.code not in self.repo.translations_list_set:
+			message = 'Add %s translation' % self.locale.name
 			translations_list_set = self.repo.translations_list_set
 			translations_list_set.append(self.locale.code)
 			self.repo.translations_list_set = translations_list_set
@@ -129,7 +131,6 @@ class Translation(models.Model):
 
 		tree_sha = api.get_commit_tree_sha(self.repo.fork_name, parent_commit)
 		tree_sha = api.save_files(self.repo.fork_name, tree_sha, files)
-		message = 'Update %s translation' % self.locale.name
 		author = {
 			'name': self.owner.username,
 			'email': self.owner.email
