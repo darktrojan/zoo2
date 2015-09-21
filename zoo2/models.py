@@ -73,7 +73,6 @@ class Repo(models.Model):
 class Translation(models.Model):
 	repo = models.ForeignKey(Repo)
 	locale = models.ForeignKey(Locale)
-	head_commit = models.CharField(max_length=40, blank=True)
 	pull_request = models.IntegerField(default=0)
 	dirty = models.BooleanField(default=False)
 	busy = models.IntegerField(default=0)
@@ -95,10 +94,7 @@ class Translation(models.Model):
 		return self.owner == user or self.repo.owner == user
 
 	def save_to_github(self):
-		if self.head_commit == '':
-			parent_commit = self.repo.head_commit
-		else:
-			parent_commit = self.head_commit
+		parent_commit = self.repo.head_commit
 
 		files = dict()
 		for f in self.repo.file_set.all():
@@ -135,14 +131,14 @@ class Translation(models.Model):
 			'name': self.owner.username,
 			'email': self.owner.email
 		}
-		self.head_commit = api.create_commit(
+		head_commit = api.create_commit(
 			self.repo.fork_name, message, tree_sha, parent_commit, author=author
 		)
 
-		api.update_head_commit_sha(self.repo.fork_name, self.branch_name, self.head_commit, force=True)
+		api.update_head_commit_sha(self.repo.fork_name, self.branch_name, head_commit, force=True)
 
 		self.dirty = False
-		self.save(update_fields=['head_commit', 'dirty'])
+		self.save(update_fields=['dirty'])
 		self.set_strings_clean()
 
 	def create_pull_request(self):
