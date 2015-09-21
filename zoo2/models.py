@@ -159,6 +159,11 @@ class Translation(models.Model):
 		self.pull_request = api.create_pull_request(
 			self.repo.full_name, head, self.repo.branch, title, token=token
 		)
+		if self.pull_request is None and token is not None and self.owner.pk != 1:
+			self.pull_request = api.create_pull_request(
+				self.repo.full_name, head, self.repo.branch, title
+			)
+
 		self.save(update_fields=['pull_request'])
 
 	def set_strings_clean(self):
