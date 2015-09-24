@@ -11,7 +11,7 @@
 </h1>
 {% html_block 'page_alert' %}
 <p id="meta">
-	Owner: {{ repo.owner.username }}
+	Owner: <a href="https://github.com/{{ repo.owner.profile.github_username }}">{{ repo.owner.username }}</a>
 	<span><a href="https://github.com/{{ repo.full_name }}">View on GitHub</a></span>
 	{% if repo.amo_stub %}
 		<span><a href="https://addons.mozilla.org/addon/{{ repo.amo_stub }}">View on addons.mozilla.org</a></span>

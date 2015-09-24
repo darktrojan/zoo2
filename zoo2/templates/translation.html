@@ -10,7 +10,12 @@
 	{{ locale.name }}
 </h1>
 {% html_block 'page_alert' %}
-<p id="meta">Translator: {{ translation.owner.username }}
+<p id="meta">Translator:
+	{% if translation.owner.profile.github_username %}
+		<a href="https://github.com/{{ translation.owner.profile.github_username }}">{{ translation.owner.username }}</a>
+	{% else %}
+		{{ translation.owner.username }}
+	{% endif %}
 {% if translation.pull_request > 0 %}
 	<span><a href="https://github.com/{{ repo.full_name }}/pull/{{ translation.pull_request }}">View current pull request</a></span>
 {% endif %}
