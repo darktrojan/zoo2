@@ -23,10 +23,12 @@ class RepoAdmin(ViewOnSiteMixin, admin.ModelAdmin):
 
 class TranslationAdmin(ViewOnSiteMixin, admin.ModelAdmin):
 	list_display = ('repo', 'locale', 'owner', 'view_on_site2')
+	list_filter = ('repo', 'locale')
 
 
 class FileAdmin(admin.ModelAdmin):
 	list_display = ('repo', 'path', 'string_count')
+	list_filter = ('repo',)
 
 
 class StringAdmin(admin.ModelAdmin):
