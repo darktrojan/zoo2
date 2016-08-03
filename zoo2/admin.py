@@ -34,7 +34,7 @@ class FileAdmin(admin.ModelAdmin):
 class StringAdmin(admin.ModelAdmin):
 	list_display = ('file', 'locale', 'key', 'value')
 	list_display_links = ('key',)
-	list_filter = ('file', 'locale')
+	list_filter = ('file__repo', 'file', 'locale')
 
 
 class UserProfileInline(admin.StackedInline):

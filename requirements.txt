@@ -1,5 +1,7 @@
-Django==1.8.3
+Django==1.8.14
 Markdown==2.6.2
+MySQL-python==1.2.5
+amqp==2.0.3
 anyjson==0.3.3
 argparse==1.2.1
 billiard==3.3.0.20
@@ -11,8 +13,9 @@ django-kombu==0.9.4
 django-markdown==0.8.4
 django-toolbelt==0.0.1
 gunicorn==19.3.0
-kombu==3.0.26
+kombu==3.0.35
 psycopg2==2.6.1
 pytz==2015.4
 static3==0.6.1
+vine==1.1.1
 wsgiref==0.1.2
